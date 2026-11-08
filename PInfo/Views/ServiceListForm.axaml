@@ -1,0 +1,36 @@
+<Views:AppForm
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Views="using:PInfo.Views"
+    xmlns:Models="using:PInfo"
+    x:Class="PInfo.Views.ServiceListForm"
+    Background="{StaticResource SurfaceColor}">
+    <Grid RowDefinitions="Auto,*" Margin="16">
+        <!-- Header of the secondary view -->
+        <StackPanel Spacing="6" Margin="4,4,4,16">
+            <TextBlock Text="Services" FontSize="28" FontWeight="Bold"
+                       Foreground="{StaticResource PrimaryColor}"/>
+            <TextBlock Text="Choose a service to explore" Classes="Body"/>
+        </StackPanel>
+        <!-- Available services from the application host -->
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+            <ItemsControl x:Name="ServiceList">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="Models:PublicServiceItem">
+                        <Button Click="AnyClick" HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch" Padding="18"
+                                Margin="0,0,0,10" Background="White" Foreground="{StaticResource PrimaryColor}"
+                                BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="12">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding Service.Name}" FontSize="20" FontWeight="SemiBold"
+                                           TextWrapping="Wrap" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="Open" FontSize="14" Foreground="#4A5568"
+                                           VerticalAlignment="Center" Margin="16,0,0,0"/>
+                            </Grid>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</Views:AppForm>

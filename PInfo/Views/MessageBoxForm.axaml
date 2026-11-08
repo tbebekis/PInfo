@@ -1,0 +1,20 @@
+<Views:AppForm
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Views="using:PInfo.Views"
+    x:Class="PInfo.Views.MessageBoxForm"
+    Background="{DynamicResource SurfaceColor}">
+    <Grid RowDefinitions="Auto,*,Auto">
+        <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" Padding="12">
+            <TextBlock x:Name="ModeText" Classes="Title" VerticalAlignment="Center" TextWrapping="Wrap"/>
+        </Border>
+        <ScrollViewer Grid.Row="1" Margin="24" HorizontalScrollBarVisibility="Disabled">
+            <TextBlock x:Name="MessageText" Classes="Body" FontSize="20" TextWrapping="Wrap"/>
+        </ScrollViewer>
+        <StackPanel Grid.Row="2" Margin="24" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12">
+            <Button x:Name="btnNo" Content="No" MinWidth="80"/>
+            <Button x:Name="btnYes" Content="Yes" MinWidth="80"/>
+            <Button x:Name="btnOK" Content="OK" MinWidth="80"/>
+        </StackPanel>
+    </Grid>
+</Views:AppForm>

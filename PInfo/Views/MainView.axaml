@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PInfo.Views.MainView">
+    
+    <ContentControl x:Name="RootContainer" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+    <!-- Grid layout with 3 rows: Header, Content Container, and Status Bar -->
+    <Grid x:Name="MainLayout" RowDefinitions="Auto, *, Auto">
+
+        <!-- 1. Header / Toolbar -->
+        <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" Padding="12">
+            <StackPanel Orientation="Horizontal" Spacing="15" VerticalAlignment="Center">
+                <TextBlock Text="PInfo" Classes="Title" VerticalAlignment="Center"/>
+                <!-- No events here, buttons have x:Name for code-behind binding -->
+                <Button x:Name="btnTest" Content="Test" Classes="PrimaryButton"/>
+            </StackPanel>
+        </Border>
+
+        <!-- 2. Content Container for dynamic view switching -->
+        <ContentControl x:Name="ViewContainer" Grid.Row="1" Background="{StaticResource SurfaceColor}"
+                        HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+
+        <!-- 3. Status Bar / Footer -->
+        <Border Grid.Row="2" Background="#FFE2E8F0" Padding="8">
+            <TextBlock Text="Status: Ready" Classes="StatusBar"/>
+        </Border>
+
+    </Grid>
+    </ContentControl>
+ 
+</UserControl>

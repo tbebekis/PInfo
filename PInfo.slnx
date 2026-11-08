@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="PInfo.Android/PInfo.Android.csproj">
+    <Deploy />
+  </Project>
+  <Project Path="PInfo/PInfo.csproj" />
+</Solution>

@@ -1,0 +1,61 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:PInfo"
+             x:Class="PInfo.App"
+             RequestedThemeVariant="Default">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.Resources>
+        <SolidColorBrush x:Key="PrimaryColor">#FF2D3748</SolidColorBrush>
+        <SolidColorBrush x:Key="PrimaryBack">#FF4A5568</SolidColorBrush>
+        <SolidColorBrush x:Key="SurfaceColor">#FFF7FAFC</SolidColorBrush>
+        
+        <x:Double x:Key="FontSizeLarge">20</x:Double>
+        <x:Double x:Key="FontSizeMedium">16</x:Double>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+
+        <!-- 1. Global Button Rule: Center alignment for ALL buttons by default -->
+        <Style Selector="Button">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="12, 6"/>
+        </Style>
+
+        <!-- 2. Primary Button Style (Dark background, white text) -->
+        <Style Selector="Button.PrimaryButton">
+            <Setter Property="Background" Value="{StaticResource PrimaryBack}" />
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <!-- 3. Light Button Style (White background, dark text) -->
+        <Style Selector="Button.LightButton">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+        </Style>
+
+        <!-- TextBlock Styles -->
+        <Style Selector="TextBlock.Title">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeLarge}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style Selector="TextBlock.Body">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeMedium}"/>
+            <Setter Property="Foreground" Value="#FF4A5568"/>
+        </Style>
+        
+        <!-- Status Bar Text Style -->
+        <Style Selector="TextBlock.StatusBar">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#FF718096"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+        </Style>
+    </Application.Styles>
+</Application>
