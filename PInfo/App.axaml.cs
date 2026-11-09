@@ -8,6 +8,7 @@ public partial class App : Application
     {
         GlobalExceptionHandler.Initialize();
         AvaloniaXamlLoader.Load(this);
+        ThemeManager.Apply(AppHost.Settings.Theme);
 #if DEBUG
         this.AttachDeveloperTools();
 #endif

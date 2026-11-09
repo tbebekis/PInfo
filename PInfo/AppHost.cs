@@ -29,6 +29,11 @@ static public class AppHost
 
     // ● properties
     /// <summary>
+    /// The shared preferences, loaded once from private storage.
+    /// </summary>
+    static public Settings Settings { get; } = PInfo.Settings.Load();
+
+    /// <summary>
     /// The registered services and their form factories, exposed as a read-only collection.
     /// </summary>
     static public IReadOnlyList<PublicServiceItem> PublicServices => fPublicServices;

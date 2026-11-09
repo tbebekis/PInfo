@@ -4,7 +4,7 @@ namespace PInfo.Views;
 public partial class MainView : UserControl
 {
     
-    object mDefaultContent = null;
+    readonly Stack<AppForm> fForms = new();
     MessageBoxForm fMessageBox;
     TopLevel fTopLevel;
     static bool fStartupNotificationShown;
@@ -14,6 +14,10 @@ public partial class MainView : UserControl
     {
         if (Sender == btnTest)
             await Test();
+        else if (Sender == btnSettings && fMessageBox == null && fForms.Peek() is not SettingsForm)
+            PushForm(new SettingsForm());
+        else if (Sender == btnAbout && fMessageBox == null && fForms.Peek() is not AboutForm)
+            PushForm(new AboutForm());
     }
     /// <summary>Tests a full-page message and restoration of the current form.</summary>
     Task Test()
@@ -40,9 +44,8 @@ public partial class MainView : UserControl
             return;
         }
         // If we are currently displaying a secondary view, go back and handle the event
-        if (ViewContainer.Content is AppForm && ViewContainer.Content != mDefaultContent)
+        if (GoBack())
         {
-            ViewContainer.Content = mDefaultContent;
             e.Handled = true; // Prevent the app from exiting
         }
     }
@@ -76,15 +79,16 @@ public partial class MainView : UserControl
         InitializeComponent();
         
         // Save the initial service list content of the container
-        ViewContainer.Content = new ServiceListForm();
-        mDefaultContent = ViewContainer.Content;
+        PushForm(new ServiceListForm());
 
         btnTest.Click += AnyClick;
+        btnSettings.Click += AnyClick;
+        btnAbout.Click += AnyClick;
         Loaded += OnLoaded;
     }
     
     // ● public
-    /// <summary>Opens the registered service form while retaining the initial service list for Back.</summary>
+    /// <summary>Opens the registered service form on top of the navigation stack.</summary>
     /// <param name="Item">The service registration containing its form factory.</param>
     internal void OpenService(PublicServiceItem Item)
     {
@@ -92,7 +96,37 @@ public partial class MainView : UserControl
         if (fMessageBox != null)
             return;
         ArgumentNullException.ThrowIfNull(Item);
-        ViewContainer.Content = Item.CreateForm();
+        PushForm(Item.CreateForm());
+    }
+    /// <summary>
+    /// Pushes a form onto the navigation stack and displays it, retaining previous instances.
+    /// Navigation is ignored while a message box is displayed.
+    /// </summary>
+    /// <param name="Form">A form instance not already present in the stack.</param>
+    /// <exception cref="ArgumentException">The form is a message box or is already in the stack.</exception>
+    public void PushForm(AppForm Form)
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        ArgumentNullException.ThrowIfNull(Form);
+        if (fMessageBox != null)
+            return;
+        if (Form is MessageBoxForm || fForms.Contains(Form))
+            throw new ArgumentException("The form must be a new navigation entry, not a message box.", nameof(Form));
+
+        fForms.Push(Form);
+        ViewContainer.Content = Form;
+    }
+    /// <summary>Removes the top form and restores the preceding instance without removing the root.</summary>
+    /// <returns>True when a form was removed; false at the root or while a message box is displayed.</returns>
+    public bool GoBack()
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        if (fMessageBox != null || fForms.Count <= 1)
+            return false;
+
+        fForms.Pop();
+        ViewContainer.Content = fForms.Peek();
+        return true;
     }
     /// <summary>Temporarily replaces the entire layout and restores it before returning the response.</summary>
     internal async Task<bool> ShowMessageBox(MessageBoxForm Form, bool KeepLastView)
@@ -113,8 +147,10 @@ public partial class MainView : UserControl
             {
                 if (!KeepLastView)
                 {
-                    ViewContainer.Content = new ServiceListForm();
-                    mDefaultContent = ViewContainer.Content;
+                    AppForm RootForm = new ServiceListForm();
+                    fForms.Clear();
+                    fForms.Push(RootForm);
+                    ViewContainer.Content = RootForm;
                 }
             }
             finally

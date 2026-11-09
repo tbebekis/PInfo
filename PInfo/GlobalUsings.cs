@@ -40,3 +40,7 @@ global using Avalonia.Markup.Xaml;
 global using Avalonia.Threading;
 
 global using PInfo.Views;
+
+global using Avalonia.Media;
+global using Avalonia.Styling;
+global using Avalonia.Themes.Fluent;

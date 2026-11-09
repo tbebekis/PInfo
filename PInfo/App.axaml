@@ -2,20 +2,108 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:PInfo"
              x:Class="PInfo.App"
-             RequestedThemeVariant="Default">
+             RequestedThemeVariant="Light">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
+    <!-- Named palettes explicitly select a Light or Dark Fluent base, independently of the device theme. -->
     <Application.Resources>
-        <SolidColorBrush x:Key="PrimaryColor">#FF2D3748</SolidColorBrush>
-        <SolidColorBrush x:Key="PrimaryBack">#FF4A5568</SolidColorBrush>
-        <SolidColorBrush x:Key="SurfaceColor">#FFF7FAFC</SolidColorBrush>
-        
         <x:Double x:Key="FontSizeLarge">20</x:Double>
         <x:Double x:Key="FontSizeMedium">16</x:Double>
+
+        <!-- Classic is a light palette; all palettes expose the same semantic brush keys. -->
+        <ResourceDictionary x:Key="ClassicPalette">
+            <SolidColorBrush x:Key="PrimaryColor">#2D3748</SolidColorBrush>
+            <SolidColorBrush x:Key="PrimaryTextColor">#2D3748</SolidColorBrush>
+            <SolidColorBrush x:Key="PrimaryBack">#4A5568</SolidColorBrush>
+            <SolidColorBrush x:Key="SurfaceColor">#F7FAFC</SolidColorBrush>
+            <SolidColorBrush x:Key="SecondaryTextColor">#4A5568</SolidColorBrush>
+            <SolidColorBrush x:Key="MutedTextColor">#718096</SolidColorBrush>
+            <SolidColorBrush x:Key="CardBackground">#FFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="CardBorderColor">#E2E8F0</SolidColorBrush>
+            <SolidColorBrush x:Key="BadgeBackground">#EDF2F7</SolidColorBrush>
+            <SolidColorBrush x:Key="NoticeBackground">#FFF1E8</SolidColorBrush>
+            <SolidColorBrush x:Key="NoticeForeground">#7C3A12</SolidColorBrush>
+            <SolidColorBrush x:Key="ToolbarForeground">#FFFFFF</SolidColorBrush>
+            <Color x:Key="AccentColor">#4A5568</Color>
+        </ResourceDictionary>
+
+        <!-- Ocean is a light palette; all palettes expose the same semantic brush keys. -->
+        <ResourceDictionary x:Key="OceanPalette">
+            <SolidColorBrush x:Key="PrimaryColor">#164E63</SolidColorBrush>
+            <SolidColorBrush x:Key="PrimaryTextColor">#164E63</SolidColorBrush>
+            <SolidColorBrush x:Key="PrimaryBack">#0369A1</SolidColorBrush>
+            <SolidColorBrush x:Key="SurfaceColor">#F0F9FF</SolidColorBrush>
+            <SolidColorBrush x:Key="SecondaryTextColor">#334E68</SolidColorBrush>
+            <SolidColorBrush x:Key="MutedTextColor">#526D82</SolidColorBrush>
+            <SolidColorBrush x:Key="CardBackground">#FFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="CardBorderColor">#CFE4EF</SolidColorBrush>
+            <SolidColorBrush x:Key="BadgeBackground">#E0F2FE</SolidColorBrush>
+            <SolidColorBrush x:Key="NoticeBackground">#FFF1E8</SolidColorBrush>
+            <SolidColorBrush x:Key="NoticeForeground">#7C3A12</SolidColorBrush>
+            <SolidColorBrush x:Key="ToolbarForeground">#FFFFFF</SolidColorBrush>
+            <Color x:Key="AccentColor">#0369A1</Color>
+        </ResourceDictionary>
+
+        <!-- Forest is a light palette; all palettes expose the same semantic brush keys. -->
+        <ResourceDictionary x:Key="ForestPalette">
+            <SolidColorBrush x:Key="PrimaryColor">#14532D</SolidColorBrush>
+            <SolidColorBrush x:Key="PrimaryTextColor">#14532D</SolidColorBrush>
+            <SolidColorBrush x:Key="PrimaryBack">#166534</SolidColorBrush>
+            <SolidColorBrush x:Key="SurfaceColor">#F3FAF5</SolidColorBrush>
+            <SolidColorBrush x:Key="SecondaryTextColor">#365344</SolidColorBrush>
+            <SolidColorBrush x:Key="MutedTextColor">#5D7565</SolidColorBrush>
+            <SolidColorBrush x:Key="CardBackground">#FFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="CardBorderColor">#D4E6D9</SolidColorBrush>
+            <SolidColorBrush x:Key="BadgeBackground">#E0F0E4</SolidColorBrush>
+            <SolidColorBrush x:Key="NoticeBackground">#FFF1E8</SolidColorBrush>
+            <SolidColorBrush x:Key="NoticeForeground">#7C3A12</SolidColorBrush>
+            <SolidColorBrush x:Key="ToolbarForeground">#FFFFFF</SolidColorBrush>
+            <Color x:Key="AccentColor">#166534</Color>
+        </ResourceDictionary>
+
+        <!-- Orange uses the Light Fluent base and the same semantic keys as every palette. -->
+        <ResourceDictionary x:Key="OrangePalette">
+            <SolidColorBrush x:Key="PrimaryColor">#7C2D12</SolidColorBrush>
+            <SolidColorBrush x:Key="PrimaryBack">#C2410C</SolidColorBrush>
+            <SolidColorBrush x:Key="SurfaceColor">#FFF7ED</SolidColorBrush>
+            <SolidColorBrush x:Key="SecondaryTextColor">#75452E</SolidColorBrush>
+            <SolidColorBrush x:Key="MutedTextColor">#946347</SolidColorBrush>
+            <SolidColorBrush x:Key="CardBackground">#FFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="CardBorderColor">#FED7AA</SolidColorBrush>
+            <SolidColorBrush x:Key="BadgeBackground">#FFEDD5</SolidColorBrush>
+            <SolidColorBrush x:Key="NoticeBackground">#FFF1E8</SolidColorBrush>
+            <SolidColorBrush x:Key="NoticeForeground">#7C3A12</SolidColorBrush>
+            <SolidColorBrush x:Key="ToolbarForeground">#FFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="PrimaryTextColor">#7C2D12</SolidColorBrush>
+            <Color x:Key="AccentColor">#C2410C</Color>
+        </ResourceDictionary>
+
+        <!-- Dark uses the Dark Fluent base and the same semantic keys as every palette. -->
+        <ResourceDictionary x:Key="DarkPalette">
+            <SolidColorBrush x:Key="PrimaryColor">#1E293B</SolidColorBrush>
+            <SolidColorBrush x:Key="PrimaryBack">#334155</SolidColorBrush>
+            <SolidColorBrush x:Key="SurfaceColor">#0F172A</SolidColorBrush>
+            <SolidColorBrush x:Key="SecondaryTextColor">#CBD5E1</SolidColorBrush>
+            <SolidColorBrush x:Key="MutedTextColor">#A5B4C8</SolidColorBrush>
+            <SolidColorBrush x:Key="CardBackground">#1E293B</SolidColorBrush>
+            <SolidColorBrush x:Key="CardBorderColor">#475569</SolidColorBrush>
+            <SolidColorBrush x:Key="BadgeBackground">#334155</SolidColorBrush>
+            <SolidColorBrush x:Key="NoticeBackground">#422B1B</SolidColorBrush>
+            <SolidColorBrush x:Key="NoticeForeground">#FED7AA</SolidColorBrush>
+            <SolidColorBrush x:Key="ToolbarForeground">#FFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="PrimaryTextColor">#F1F5F9</SolidColorBrush>
+            <Color x:Key="AccentColor">#7DD3FC</Color>
+        </ResourceDictionary>
     </Application.Resources>
 
     <Application.Styles>
-        <FluentTheme />
+        <!-- The accent is updated together with the application palette by ThemeManager. -->
+        <FluentTheme>
+            <FluentTheme.Palettes>
+                <ColorPaletteResources x:Key="Light" Accent="#4A5568"/>
+                <ColorPaletteResources x:Key="Dark" Accent="#7DD3FC"/>
+            </FluentTheme.Palettes>
+        </FluentTheme>
 
         <!-- 1. Global Button Rule: Center alignment for ALL buttons by default -->
         <Style Selector="Button">
@@ -28,34 +116,306 @@
 
         <!-- 2. Primary Button Style (Dark background, white text) -->
         <Style Selector="Button.PrimaryButton">
-            <Setter Property="Background" Value="{StaticResource PrimaryBack}" />
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="{DynamicResource PrimaryBack}" />
+            <Setter Property="Foreground" Value="{DynamicResource ToolbarForeground}"/>
         </Style>
 
         <!-- 3. Light Button Style (White background, dark text) -->
         <Style Selector="Button.LightButton">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}"/>
         </Style>
 
-        <!-- TextBlock Styles -->
-        <Style Selector="TextBlock.Title">
+        <!-- Toolbar titles use white, bold text on the primary background. -->
+        <Style Selector="TextBlock.ToolbarTitle">
             <Setter Property="FontSize" Value="{StaticResource FontSizeLarge}"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="{DynamicResource ToolbarForeground}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
 
-        <Style Selector="TextBlock.Body">
+        <!-- Standard descriptive text used throughout application forms. -->
+        <Style Selector="TextBlock.BodyText">
             <Setter Property="FontSize" Value="{StaticResource FontSizeMedium}"/>
-            <Setter Property="Foreground" Value="#FF4A5568"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextColor}"/>
         </Style>
         
         <!-- Status Bar Text Style -->
-        <Style Selector="TextBlock.StatusBar">
+        <Style Selector="TextBlock.StatusbarText">
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Foreground" Value="#FF718096"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedTextColor}"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="Margin" Value="8,0,0,0"/>
+        </Style>
+
+        <!-- Shared header background and padding for the main toolbar and message forms. -->
+        <Style Selector="Border.Toolbar">
+            <Setter Property="Background" Value="{DynamicResource PrimaryColor}"/>
+            <Setter Property="Padding" Value="12"/>
+        </Style>
+
+        <!-- Shared footer surface and padding. -->
+        <Style Selector="Border.Statusbar">
+            <Setter Property="Background" Value="{DynamicResource CardBorderColor}"/>
+            <Setter Property="Padding" Value="8"/>
+        </Style>
+
+        <!-- Standard background for forms and their content hosts. -->
+        <Style Selector=":is(UserControl).FormBackground, ContentControl.FormBackground">
+            <Setter Property="Background" Value="{DynamicResource SurfaceColor}"/>
+        </Style>
+
+        <!-- Stretches hosted views to fill the available area. -->
+        <Style Selector="ContentControl.ViewHost">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        </Style>
+
+        <!-- Groups a form title and introductory text with consistent spacing. -->
+        <Style Selector="StackPanel.FormHeader">
+            <Setter Property="Spacing" Value="6"/>
+            <Setter Property="Margin" Value="4,4,4,16"/>
+        </Style>
+
+        <!-- Primary heading at the top of a form. -->
+        <Style Selector="TextBlock.FormTitle">
+            <Setter Property="FontSize" Value="28"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}"/>
+        </Style>
+
+        <!-- Secondary labels and supporting information. -->
+        <Style Selector="TextBlock.SecondaryText">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextColor}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Primary text within any list item. -->
+        <Style Selector="TextBlock.ListItemTitle">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Supporting text within any list item. -->
+        <Style Selector="TextBlock.ListItemText">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextColor}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- A selectable list with no surrounding surface or border. -->
+        <Style Selector="ListBox.ItemList">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <!-- Item containers in styled lists stretch their content and separate rows. -->
+        <Style Selector="ListBox.ItemList ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        </Style>
+
+        <!-- Shared card surface for list rows, whether passive or clickable. -->
+        <Style Selector="Border.ListItem">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="14,12"/>
+        </Style>
+
+        <!-- Clickable list rows fill their width and retain standard button interaction. -->
+        <Style Selector="Button.ListItem">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <!-- Country flag emojis displayed alongside list titles. -->
+        <Style Selector="TextBlock.FlagEmoji">
+            <Setter Property="FontSize" Value="32"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Compact surface for codes and short metadata. -->
+        <Style Selector="Border.Badge">
+            <Setter Property="Background" Value="{DynamicResource BadgeBackground}"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Compact semibold text inside a badge. -->
+        <Style Selector="TextBlock.BadgeText">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextColor}"/>
+        </Style>
+
+        <!-- Consistent search input appearance. -->
+        <Style Selector="TextBox.SearchBox">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="CornerRadius" Value="10"/>
+        </Style>
+
+        <!-- Thin progress indicator for operations without a known duration. -->
+        <Style Selector="ProgressBar.LoadingBar">
+            <Setter Property="Height" Value="4"/>
+            <Setter Property="IsIndeterminate" Value="True"/>
+        </Style>
+
+        <!-- Surface for inline warnings and recoverable errors. -->
+        <Style Selector="Border.NoticePanel">
+            <Setter Property="Background" Value="{DynamicResource NoticeBackground}"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="12"/>
+        </Style>
+
+        <!-- Readable wrapped text inside an inline notice. -->
+        <Style Selector="TextBlock.NoticeText">
+            <Setter Property="Foreground" Value="{DynamicResource NoticeForeground}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <!-- Centered explanation when a list contains no matching items. -->
+        <Style Selector="TextBlock.EmptyStateText">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeMedium}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextColor}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="16"/>
+        </Style>
+
+        <!-- Large wrapped body text for full-page messages. -->
+        <Style Selector="TextBlock.MessageText">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextColor}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <!-- Right-aligned action row at the bottom of a message form. -->
+        <Style Selector="StackPanel.MessageButtons">
+            <Setter Property="Orientation" Value="Horizontal"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Spacing" Value="12"/>
+            <Setter Property="Margin" Value="24"/>
+        </Style>
+
+        <!-- Minimum action-button width for OK, Yes, and No. -->
+        <Style Selector="Button.MessageButton">
+            <Setter Property="MinWidth" Value="80"/>
+        </Style>
+        <!-- Accessible touch target for emoji-only toolbar actions. -->
+        <Style Selector="Button.ToolbarIcon">
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="MinWidth" Value="48"/>
+            <Setter Property="MinHeight" Value="48"/>
+        </Style>
+
+        <!-- Full-width preference selectors used in settings forms. -->
+        <Style Selector="ComboBox.ChoiceBox">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="MinHeight" Value="48"/>
+        </Style>
+
+        <!-- Prominent identity surface at the top of a detail form. -->
+        <Style Selector="Border.CardHeader">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="20"/>
+        </Style>
+
+        <!-- Main entity name in a detail card header. -->
+        <Style Selector="TextBlock.CardTitle">
+            <Setter Property="FontSize" Value="28"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <!-- Secondary identity information below a card title. -->
+        <Style Selector="TextBlock.CardSubtitle">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextColor}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <!-- Large flag variant for a detail header; combine with FlagEmoji. -->
+        <Style Selector="TextBlock.CardFlag">
+            <Setter Property="FontSize" Value="56"/>
+        </Style>
+
+        <!-- Reusable surface grouping related detail fields. -->
+        <Style Selector="Border.CardSection">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="18"/>
+        </Style>
+
+        <!-- Heading identifying a group of detail fields. -->
+        <Style Selector="TextBlock.CardSectionTitle">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <!-- Vertical arrangement of a section heading and its fields. -->
+        <Style Selector="StackPanel.CardFields">
+            <Setter Property="Spacing" Value="16"/>
+        </Style>
+
+        <!-- Keeps a field label close to its wrapped value. -->
+        <Style Selector="StackPanel.CardField">
+            <Setter Property="Spacing" Value="4"/>
+        </Style>
+
+        <!-- Small descriptive label above a detail value. -->
+        <Style Selector="TextBlock.FieldLabel">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedTextColor}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <!-- Readable detail value supporting long text and multiple lines. -->
+        <Style Selector="TextBlock.FieldValue">
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <!-- Groups external actions in a detail section. -->
+        <Style Selector="StackPanel.CardActions">
+            <Setter Property="Spacing" Value="8"/>
+        </Style>
+
+        <!-- Full-width external navigation action inside a detail card. -->
+        <Style Selector="HyperlinkButton.CardAction">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="MinHeight" Value="48"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}"/>
         </Style>
     </Application.Styles>
 </Application>

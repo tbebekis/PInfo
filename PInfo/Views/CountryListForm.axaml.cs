@@ -34,6 +34,17 @@ public partial class CountryListForm : AppForm
     {
         ApplySearch();
     }
+    /// <summary>
+    /// Opens the selected country's detail card while retaining this list instance for Back.
+    /// </summary>
+    void OnCountrySelectionChanged(object Sender, SelectionChangedEventArgs Args)
+    {
+        if (CountryList.SelectedItem is not CountryModel Country || MainView.Current == null)
+            return;
+
+        CountryList.SelectedItem = null;
+        MainView.Current.PushForm(new CountryCardForm(Country));
+    }
     /// <summary>Filters by name or ISO code without making another HTTP request.</summary>
     void ApplySearch()
     {
@@ -118,5 +129,6 @@ public partial class CountryListForm : AppForm
         Unloaded += OnUnloaded;
         edtSearch.TextChanged += OnSearchTextChanged;
         btnRetry.Click += AnyClick;
+        CountryList.SelectionChanged += OnCountrySelectionChanged;
     }
 }

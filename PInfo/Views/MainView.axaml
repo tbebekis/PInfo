@@ -5,26 +5,34 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PInfo.Views.MainView">
     
-    <ContentControl x:Name="RootContainer" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+    <ContentControl x:Name="RootContainer" Classes="ViewHost">
     <!-- Grid layout with 3 rows: Header, Content Container, and Status Bar -->
     <Grid x:Name="MainLayout" RowDefinitions="Auto, *, Auto">
 
         <!-- 1. Header / Toolbar -->
-        <Border Grid.Row="0" Background="{StaticResource PrimaryColor}" Padding="12">
-            <StackPanel Orientation="Horizontal" Spacing="15" VerticalAlignment="Center">
-                <TextBlock Text="PInfo" Classes="Title" VerticalAlignment="Center"/>
+        <Border Grid.Row="0" Classes="Toolbar">
+            <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                <TextBlock Text="PInfo" Classes="ToolbarTitle"/>
                 <!-- No events here, buttons have x:Name for code-behind binding -->
                 <Button x:Name="btnTest" Content="Test" Classes="PrimaryButton"/>
             </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4"
+                        HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Button x:Name="btnSettings" Content="⚙️" Classes="PrimaryButton ToolbarIcon"
+                        ToolTip.Tip="Settings" AutomationProperties.Name="Settings"/>
+                <Button x:Name="btnAbout" Content="ℹ️" Classes="PrimaryButton ToolbarIcon"
+                        ToolTip.Tip="About" AutomationProperties.Name="About"/>
+            </StackPanel>
+            </Grid>
         </Border>
 
         <!-- 2. Content Container for dynamic view switching -->
-        <ContentControl x:Name="ViewContainer" Grid.Row="1" Background="{StaticResource SurfaceColor}"
-                        HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+        <ContentControl x:Name="ViewContainer" Grid.Row="1" Classes="FormBackground ViewHost"/>
 
         <!-- 3. Status Bar / Footer -->
-        <Border Grid.Row="2" Background="#FFE2E8F0" Padding="8">
-            <TextBlock Text="Status: Ready" Classes="StatusBar"/>
+        <Border Grid.Row="2" Classes="Statusbar">
+            <TextBlock Text="Status: Ready" Classes="StatusbarText"/>
         </Border>
 
     </Grid>
