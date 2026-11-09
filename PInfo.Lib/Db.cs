@@ -9,7 +9,7 @@ namespace PInfo;
 static public partial class Db
 {
     // ● private
-    const int SchemaVersion = 1;
+    const int SchemaVersion = 2;
     static readonly SemaphoreSlim fInitializeLock = new(1, 1);
     static bool fInitialized;
 
@@ -59,7 +59,24 @@ static public partial class Db
             throw new InvalidOperationException("The database was created by a newer version of PInfo.");
     }
     /// <summary>
-    /// Applies the initial schema and version atomically. Runs entirely on a worker thread.
+    /// Executes an embedded schema script within the caller's transaction.
+    /// </summary>
+    static void ExecuteSchema(SqliteConnection Connection, SqliteTransaction Transaction,
+        string ResourceName, CancellationToken CancellationToken)
+    {
+        using Stream SchemaStream = typeof(Db).Assembly.GetManifestResourceStream(ResourceName);
+        if (SchemaStream == null)
+            throw new InvalidOperationException($"The embedded database script '{ResourceName}' could not be found.");
+        using StreamReader Reader = new(SchemaStream, Encoding.UTF8);
+        string Schema = Reader.ReadToEnd();
+        CancellationToken.ThrowIfCancellationRequested();
+        using SqliteCommand Command = Connection.CreateCommand();
+        Command.Transaction = Transaction;
+        Command.CommandText = Schema;
+        Command.ExecuteNonQuery();
+    }
+    /// <summary>
+    /// Applies the initial schema or ordered upgrades atomically. Runs entirely on a worker thread.
     /// </summary>
     static void InitializeCore(CancellationToken CancellationToken)
     {
@@ -91,24 +108,23 @@ static public partial class Db
                     throw new InvalidOperationException("The database contains tables but has no recognized schema version.");
             }
 
-            using Stream SchemaStream = typeof(Db).Assembly.GetManifestResourceStream("PInfo.Schema.sql");
-            if (SchemaStream == null)
-                throw new InvalidOperationException("The embedded database schema could not be found.");
-            using StreamReader Reader = new(SchemaStream, Encoding.UTF8);
-            string Schema = Reader.ReadToEnd();
-            CancellationToken.ThrowIfCancellationRequested();
-            using SqliteCommand SchemaCommand = Connection.CreateCommand();
-            SchemaCommand.Transaction = Transaction;
-            SchemaCommand.CommandText = Schema;
-            SchemaCommand.ExecuteNonQuery();
-
+            ExecuteSchema(Connection, Transaction, "PInfo.Schema.sql", CancellationToken);
+            Version = SchemaVersion;
+        }
+        else if (Version == 1)
+        {
+            ExecuteSchema(Connection, Transaction, "PInfo.schema-02.sql", CancellationToken);
+            Version = 2;
+        }
+        // Future schema upgrades belong here as explicit, ordered migration steps.
+        if (Version != ReadVersion(Connection, Transaction))
+        {
             CancellationToken.ThrowIfCancellationRequested();
             using SqliteCommand VersionCommand = Connection.CreateCommand();
             VersionCommand.Transaction = Transaction;
-            VersionCommand.CommandText = "PRAGMA user_version = 1;";
+            VersionCommand.CommandText = $"PRAGMA user_version = {Version};";
             VersionCommand.ExecuteNonQuery();
         }
-        // Future schema upgrades belong here as explicit, ordered migration steps.
         CancellationToken.ThrowIfCancellationRequested();
         Transaction.Commit();
     }

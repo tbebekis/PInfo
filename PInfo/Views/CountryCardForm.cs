@@ -9,13 +9,13 @@ public class CountryCardForm : AppCardForm
 {
     // ● private
     /// <summary>
-    /// Opens the selected country's top cities using the shared navigation stack.
+    /// Opens the selected country's big-city or all-city list using the shared navigation stack.
     /// </summary>
     void AnyClick(object Sender, RoutedEventArgs Args)
     {
-        if (Sender is Button ActionButton && ActionButton.Name == "btnCities"
-            && ActionButton.Tag is CountryModel Country)
-            MainView.Current?.PushForm(new CityListForm(Country));
+        if (Sender is Button ActionButton && ActionButton.Tag is CountryModel Country
+            && (ActionButton.Name == "btnCities" || ActionButton.Name == "btnAllCities"))
+            MainView.Current?.PushForm(new CityListForm(Country, ActionButton.Name == "btnCities"));
     }
     /// <summary>
     /// Builds the card from the selected model using reusable section and field styles.
@@ -28,9 +28,12 @@ public class CountryCardForm : AppCardForm
         AddBadge(Country.Alpha3Code);
         AddBadge(Country.Region);
 
-        Button btnCities = new() { Name = "btnCities", Content = "Top cities", Tag = Country };
+        Button btnCities = new() { Name = "btnCities", Content = "Big Cities", Tag = Country };
         btnCities.Click += AnyClick;
         AddHeaderAction(btnCities);
+        Button btnAllCities = new() { Name = "btnAllCities", Content = "All Cities", Tag = Country };
+        btnAllCities.Click += AnyClick;
+        AddHeaderAction(btnAllCities);
 
         StackPanel Section = CreateSection("Overview");
         AddField(Section, "Capital", Country.Capital);

@@ -72,6 +72,54 @@ static public class PublicApiClient
 
     // ● public
     /// <summary>
+    /// Streams a response to a new file without buffering the entire body in memory.
+    /// The caller owns the destination and must remove it after failure or cancellation.
+    /// </summary>
+    /// <param name="ActionUrl">The absolute URL to download.</param>
+    /// <param name="FilePath">A destination file that must not already exist.</param>
+    /// <param name="CancellationToken">Cancels the complete download.</param>
+    /// <returns>The request outcome; the response JSON property is unused.</returns>
+    static public async Task<ApiClientResult> DownloadFileAsync(string ActionUrl, string FilePath,
+        CancellationToken CancellationToken = default)
+    {
+        ApiClientResult Result = new(ActionUrl);
+        // ResponseHeadersRead requires a separate deadline for reading the response body.
+        using CancellationTokenSource DownloadCancellation = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken);
+        DownloadCancellation.CancelAfter(TimeSpan.FromMinutes(10));
+        try
+        {
+            using HttpResponseMessage Response = await ApiClient.GetAsync(ActionUrl,
+                HttpCompletionOption.ResponseHeadersRead, DownloadCancellation.Token).ConfigureAwait(false);
+            Result.StatusCode = Response.StatusCode;
+            Result.ReasonPhrase = Response.ReasonPhrase;
+            if (!Response.IsSuccessStatusCode)
+                return Result;
+            await using Stream Input = await Response.Content.ReadAsStreamAsync(DownloadCancellation.Token).ConfigureAwait(false);
+            await using FileStream Output = new(FilePath, FileMode.CreateNew, FileAccess.Write, FileShare.None,
+                81920, FileOptions.Asynchronous | FileOptions.SequentialScan);
+            await Input.CopyToAsync(Output, DownloadCancellation.Token).ConfigureAwait(false);
+            await Output.FlushAsync(DownloadCancellation.Token).ConfigureAwait(false);
+            DownloadCancellation.Token.ThrowIfCancellationRequested();
+            Result.ResultStatus = ApiClientResultStatus.Success;
+        }
+        catch (OperationCanceledException) when (CancellationToken.IsCancellationRequested)
+        {
+            Result.ResultStatus = ApiClientResultStatus.Cancelled;
+            Result.ReasonPhrase = "The download was cancelled.";
+        }
+        catch (OperationCanceledException)
+        {
+            Result.ResultStatus = ApiClientResultStatus.Error;
+            Result.ReasonPhrase = "The download timed out.";
+        }
+        catch (Exception Ex) when (Ex is HttpRequestException || Ex is IOException || Ex is UnauthorizedAccessException)
+        {
+            Result.ResultStatus = ApiClientResultStatus.Error;
+            Result.ReasonPhrase = Ex.Message;
+        }
+        return Result;
+    }
+    /// <summary>
     /// Sends a GET request and reads the response body, including HTTP error responses.
     /// Caller cancellation returns Cancelled; network failures and timeouts return Error.
     /// </summary>

@@ -19,10 +19,46 @@ public partial class MainView : UserControl
         else if (Sender == btnAbout && fMessageBox == null && fForms.Peek() is not AboutForm)
             PushForm(new AboutForm());
     }
-    /// <summary>Tests a full-page message and restoration of the current form.</summary>
-    Task Test()
+    /// <summary>
+    /// Tests the GeoNames import for Greece and displays its outcome in a full-page message.
+    /// </summary>
+    async Task Test()
     {
-        return MessageBoxForm.Info("This is a test message.", true);
+        if (!btnTest.IsEnabled || fMessageBox != null)
+            return;
+        btnTest.IsEnabled = false;
+        object PreviousCaption = btnTest.Content;
+        btnTest.Content = "Loading...";
+        ApiClientResult Result;
+        try
+        {
+            Result = await GeoNamesService.LoadPlacesAsync("GR");
+        }
+        catch (Exception Ex)
+        {
+            ExceptionLog.WriteException("MainView.Test", Ex, false);
+            Result = new ApiClientResult(string.Empty)
+            {
+                ResultStatus = ApiClientResultStatus.Error,
+                ReasonPhrase = "An unexpected error occurred while importing places for Greece."
+            };
+        }
+        finally
+        {
+            btnTest.Content = PreviousCaption;
+            btnTest.IsEnabled = true;
+        }
+        if (Result.ResultStatus == ApiClientResultStatus.Success)
+        {
+            string Message = string.IsNullOrWhiteSpace(Result.ReasonPhrase)
+                ? "Places for Greece are available in the database."
+                : Result.ReasonPhrase;
+            await MessageBoxForm.Info(Message, true);
+        }
+        else if (Result.ResultStatus == ApiClientResultStatus.Cancelled)
+            await MessageBoxForm.Info("The place load was cancelled.", true);
+        else
+            await MessageBoxForm.Error(Result.ReasonPhrase, true);
     }
     /// <summary>Shows the previous session's fatal error once, after the view has loaded.</summary>
     async void OnLoaded(object Sender, RoutedEventArgs Args)

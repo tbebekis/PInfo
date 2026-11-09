@@ -3,7 +3,7 @@
 namespace PInfo;
 
 /// <summary>
-/// Represents a populated place returned by the countries.dev cities endpoint.
+/// Represents a populated place read from GeoNames storage or the countries.dev cities endpoint.
 /// </summary>
 public class CityModel
 {

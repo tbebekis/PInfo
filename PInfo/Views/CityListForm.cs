@@ -3,12 +3,18 @@
 namespace PInfo.Views;
 
 /// <summary>
-/// Displays up to 100 cached top cities for a country, including all available fields and map links.
+/// Displays SQLite cities with expandable details, map links, search, and optional paging.
 /// </summary>
 public class CityListForm : AppListForm
 {
     // ● private
-    readonly CountryService fService;
+    readonly bool fBigCities;
+    readonly Button fPrevious = new() { Content = "Previous", IsEnabled = false };
+    readonly Button fNext = new() { Content = "Next", IsEnabled = false };
+    readonly TextBlock fPageText = new() { VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
+    int fPage;
+    int fQueryVersion;
+    bool fReady;
     readonly string fCountryCode;
     readonly string fCountryName;
     readonly HashSet<long> fExpandedCities = new();
@@ -121,41 +127,84 @@ public class CityListForm : AppListForm
 
         return CityExpander;
     }
+    /// <summary>
+    /// Reads only the requested page off the UI thread and ignores superseded search results.
+    /// </summary>
+    async Task DisplayPageAsync(bool Debounce)
+    {
+        int Version = ++fQueryVersion;
+        string Search = SearchText;
+        int Page = fPage;
+        fPrevious.IsEnabled = false;
+        fNext.IsEnabled = false;
+        try
+        {
+            if (Debounce)
+                await Task.Delay(250);
+            if (Version != fQueryVersion)
+                return;
+            var Result = await Task.Run(() => Db.GetPlaceCities(fCountryCode, fBigCities, Search, Page));
+            if (Version != fQueryVersion)
+                return;
+            fPage = Result.Page;
+            ItemList.ItemsSource = Result.Items;
+            SetResultCount(Result.Total, "city", "cities");
+            int PageCount = Math.Max(1, (Result.Total + 49) / 50);
+            fPageText.Text = $"{fPage + 1} / {PageCount}";
+            fPrevious.IsEnabled = !fBigCities && fPage > 0;
+            fNext.IsEnabled = !fBigCities && fPage + 1 < PageCount;
+            if (Result.Items.Count > 0)
+                ItemList.ScrollIntoView(Result.Items[0]);
+        }
+        catch (Exception Ex)
+        {
+            if (Version != fQueryVersion)
+                return;
+            ExceptionLog.WriteException("CityListForm.DisplayPageAsync", Ex, false);
+            ShowNotice("Cities could not be read. Please try again.", true);
+        }
+    }
+    /// <summary>
+    /// Moves to the previous or next page without changing the current search.
+    /// </summary>
+    async void OnPageClick(object Sender, RoutedEventArgs Args)
+    {
+        fPage += Sender == fNext ? 1 : -1;
+        await DisplayPageAsync(false);
+    }
 
     // ● overridables
     /// <summary>
-    /// Loads this country's top cities from the shared service and its three-month cache.
+    /// Ensures this country's GeoNames data is available in SQLite, using stored data when offline.
     /// </summary>
-    /// <param name="CancellationToken">Cancels this load or its wait for another load.</param>
+    /// <param name="CancellationToken">Cancels the download or import.</param>
     /// <returns>The service load result.</returns>
-    protected override Task<ApiClientResult> LoadListAsync(CancellationToken CancellationToken)
+    protected override async Task<ApiClientResult> LoadListAsync(CancellationToken CancellationToken)
     {
-        return fService.LoadCitiesAsync(fCountryCode, CancellationToken);
+        fReady = false;
+        ++fQueryVersion;
+        ApiClientResult Result = await GeoNamesService.LoadPlacesAsync(fCountryCode, CancellationToken);
+        fReady = Result.ResultStatus == ApiClientResultStatus.Success && !CancellationToken.IsCancellationRequested;
+        return Result;
     }
     /// <summary>
-    /// Filters the downloaded cities locally and displays them alphabetically by name.
+    /// Restarts the current SQLite search at the first page.
     /// </summary>
-    protected override void ApplySearch()
+    protected override async void ApplySearch()
     {
-        string Search = SearchText;
-        IReadOnlyList<CityModel> Cities = fService.GetCities(fCountryCode);
-        SetHeader(fCountryName + " - " + Cities.Count + (Cities.Count == 1 ? " City" : " Cities"),
-            string.Empty, "Search by city name or administrative code");
-        List<CityModel> Items = Cities.Where(Item =>
-            (Item.Name ?? string.Empty).Contains(Search, StringComparison.OrdinalIgnoreCase)
-            || (Item.AsciiName ?? string.Empty).Contains(Search, StringComparison.OrdinalIgnoreCase)
-            || (Item.Admin1Code ?? string.Empty).Contains(Search, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(Item => Item.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
-        ItemList.ItemsSource = Items;
-        SetResultCount(Items.Count, "city", "cities");
+        if (!fReady)
+            return;
+        fPage = 0;
+        await DisplayPageAsync(true);
     }
 
     // ● constructor
     /// <summary>
-    /// Creates the top-city list for the selected country using the shared base-form layout.
+    /// Creates the selected city list using the existing expandable row layout.
     /// </summary>
     /// <param name="Country">The selected country; its alpha-2 code is required.</param>
-    public CityListForm(CountryModel Country)
+    /// <param name="BigCities">Shows up to 100 large cities; otherwise enables pages of all populated places.</param>
+    public CityListForm(CountryModel Country, bool BigCities = true)
     {
         ArgumentNullException.ThrowIfNull(Country);
         ArgumentException.ThrowIfNullOrWhiteSpace(Country.Alpha2Code);
@@ -164,11 +213,33 @@ public class CityListForm : AppListForm
         if (fCountryCode.Length != 2 || fCountryCode.Any(Character => Character < 'A' || Character > 'Z'))
             throw new ArgumentException("The country must have a two-letter ISO code.", nameof(Country));
 
-        fService = Lib.Countries;
+        fBigCities = BigCities;
         Classes.Add("CompactTitle");
-        Classes.Add("HideResultCount");
-        SetHeader(fCountryName, string.Empty,
-            "Search by city name or administrative code");
+        SetHeader(fCountryName + (fBigCities ? " - Big Cities" : " - All Cities"),
+            "GeoNames", "Search by city name or alternative name");
+        StackPanel Pager = new()
+        {
+            Orientation = Avalonia.Layout.Orientation.Horizontal,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Bottom,
+            Spacing = 12,
+            IsVisible = !fBigCities
+        };
+        Pager.Children.Add(fPrevious);
+        Pager.Children.Add(fPageText);
+        Pager.Children.Add(fNext);
+        if (ItemList.Parent is Grid ListPanel)
+        {
+            if (!fBigCities)
+            {
+                ListPanel.RowDefinitions = new RowDefinitions("*,Auto");
+                Pager.Margin = new Thickness(0, 12, 0, 0);
+                Grid.SetRow(Pager, 1);
+                ListPanel.Children.Add(Pager);
+            }
+        }
+        fPrevious.Click += OnPageClick;
+        fNext.Click += OnPageClick;
         EmptyMessage = "No cities are available or match your search.";
         ItemList.ItemTemplate = new FuncDataTemplate<CityModel>(
             (City, Scope) => CreateItem(City), supportsRecycling: true);
