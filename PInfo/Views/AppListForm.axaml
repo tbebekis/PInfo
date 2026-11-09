@@ -1,0 +1,31 @@
+<Views:AppForm xmlns="https://github.com/avaloniaui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:Views="using:PInfo.Views"
+               x:Class="PInfo.Views.AppListForm"
+               Classes="FormBackground">
+    <Grid RowDefinitions="Auto,Auto,*" Margin="16">
+        <StackPanel Classes="FormHeader">
+            <TextBlock x:Name="TitleText" Classes="FormTitle"/>
+            <TextBlock x:Name="SubtitleText" Classes="BodyText"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Spacing="10" Margin="0,0,0,12">
+            <TextBox x:Name="edtSearch" PlaceholderText="Search"
+                     Classes="SearchBox"/>
+            <TextBlock x:Name="ResultCountText" Classes="BodyText" Margin="4,0"/>
+            <ProgressBar x:Name="LoadingProgress" Classes="LoadingBar" IsVisible="False"/>
+            <Border x:Name="NoticePanel" IsVisible="False" Classes="NoticePanel">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Name="NoticeText" Classes="NoticeText"/>
+                    <Button x:Name="btnRetry" Content="Try again" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+        <Grid Grid.Row="2">
+            <ListBox x:Name="ListControl" Classes="ItemList"
+                     SelectionMode="Single">
+            </ListBox>
+            <TextBlock x:Name="EmptyText" Text="No items match your search."
+                       IsVisible="False" Classes="EmptyStateText"/>
+        </Grid>
+    </Grid>
+</Views:AppForm>

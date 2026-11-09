@@ -44,3 +44,7 @@ global using PInfo.Views;
 global using Avalonia.Media;
 global using Avalonia.Styling;
 global using Avalonia.Themes.Fluent;
+
+global using Avalonia.Controls.Templates;
+global using Avalonia.Data;
+global using Avalonia.Data.Converters;

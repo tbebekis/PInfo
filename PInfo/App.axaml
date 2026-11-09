@@ -357,8 +357,8 @@
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
 
-        <!-- Large flag variant for a detail header; combine with FlagEmoji. -->
-        <Style Selector="TextBlock.CardFlag">
+        <!-- Large emoji or short text icon for a detail header; combine with FlagEmoji when appropriate. -->
+        <Style Selector="TextBlock.CardIcon">
             <Setter Property="FontSize" Value="56"/>
         </Style>
 
@@ -416,6 +416,35 @@
             <Setter Property="Padding" Value="12"/>
             <Setter Property="MinHeight" Value="48"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}"/>
+        </Style>
+        <!-- Buttons for related information displayed below a detail card's header badges. -->
+        <Style Selector="Button.CardHeaderAction">
+            <Setter Property="MinHeight" Value="48"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="Margin" Value="0,0,8,4"/>
+        </Style>
+        <!-- Expandable list items own their card surface; Fluent joins header and content corners. -->
+        <Style Selector="Expander.ListItem">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderColor}"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="14,12"/>
+        </Style>
+        <!-- Match the expandable row header to its card surface while keeping Fluent interaction states. -->
+        <Style Selector="Expander.ListItem /template/ ToggleButton#ExpanderHeader">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderColor}"/>
+            <Setter Property="Padding" Value="14,12"/>
+        </Style>
+        <!-- Optional compact form headings use the same font size as the application toolbar title. -->
+        <Style Selector=":is(UserControl).CompactTitle TextBlock.FormTitle">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeLarge}"/>
+        </Style>
+        <!-- Hide the separate list counter when the form already includes the total in its title. -->
+        <Style Selector=":is(UserControl).HideResultCount TextBlock#ResultCountText">
+            <Setter Property="IsVisible" Value="False"/>
         </Style>
     </Application.Styles>
 </Application>

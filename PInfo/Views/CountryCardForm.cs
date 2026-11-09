@@ -5,93 +5,32 @@ namespace PInfo.Views;
 /// <summary>
 /// Displays the selected country's downloaded details without making an HTTP request.
 /// </summary>
-public partial class CountryCardForm : AppForm
+public class CountryCardForm : AppCardForm
 {
     // ● private
     /// <summary>
-    /// Adds a compact header badge when text is available.
+    /// Opens the selected country's top cities using the shared navigation stack.
     /// </summary>
-    void AddBadge(string Text)
+    void AnyClick(object Sender, RoutedEventArgs Args)
     {
-        if (string.IsNullOrWhiteSpace(Text))
-            return;
-        TextBlock Label = new() { Text = Text };
-        Label.Classes.Add("BadgeText");
-        Border Badge = new() { Child = Label, Margin = new Thickness(0, 0, 8, 0) };
-        Badge.Classes.Add("Badge");
-        BadgePanel.Children.Add(Badge);
-    }
-    /// <summary>
-    /// Creates a section containing a heading and vertically arranged fields.
-    /// </summary>
-    StackPanel CreateSection(string Title)
-    {
-        StackPanel Panel = new();
-        Panel.Classes.Add("CardFields");
-        TextBlock Heading = new() { Text = Title };
-        Heading.Classes.Add("CardSectionTitle");
-        Panel.Children.Add(Heading);
-        return Panel;
-    }
-    /// <summary>
-    /// Adds a labeled value, omitting fields with no available content.
-    /// </summary>
-    void AddField(StackPanel Section, string Label, string Value)
-    {
-        if (string.IsNullOrWhiteSpace(Value))
-            return;
-        StackPanel Field = new();
-        Field.Classes.Add("CardField");
-        TextBlock LabelText = new() { Text = Label };
-        LabelText.Classes.Add("FieldLabel");
-        TextBlock ValueText = new() { Text = Value };
-        ValueText.Classes.Add("FieldValue");
-        Field.Children.Add(LabelText);
-        Field.Children.Add(ValueText);
-        Section.Children.Add(Field);
-    }
-    /// <summary>
-    /// Displays a section only if it contains data as well as its heading.
-    /// </summary>
-    void AddSection(StackPanel Section)
-    {
-        if (Section.Children.Count <= 1)
-            return;
-        Border Card = new() { Child = Section };
-        Card.Classes.Add("CardSection");
-        SectionPanel.Children.Add(Card);
-    }
-    /// <summary>
-    /// Formats multiple values as separate lines, ignoring empty values.
-    /// </summary>
-    string JoinValues(IEnumerable<string> Values)
-    {
-        return Values == null ? string.Empty : string.Join(Environment.NewLine,
-            Values.Where(Value => !string.IsNullOrWhiteSpace(Value)));
-    }
-    /// <summary>
-    /// Adds an external map action only for a valid HTTPS address.
-    /// </summary>
-    void AddMap(StackPanel Panel, string Caption, string Url)
-    {
-        if (!Uri.TryCreate(Url, UriKind.Absolute, out Uri Address) || Address.Scheme != Uri.UriSchemeHttps)
-            return;
-        HyperlinkButton Link = new() { Content = Caption, NavigateUri = Address };
-        Link.Classes.Add("CardAction");
-        Panel.Children.Add(Link);
+        if (Sender is Button ActionButton && ActionButton.Name == "btnCities"
+            && ActionButton.Tag is CountryModel Country)
+            MainView.Current?.PushForm(new CityListForm(Country));
     }
     /// <summary>
     /// Builds the card from the selected model using reusable section and field styles.
     /// </summary>
     void DisplayCountry(CountryModel Country)
     {
-        FlagText.Text = Country.Flag;
-        NameText.Text = Country.Name;
-        NativeNameText.Text = Country.NativeName;
-        NativeNameText.IsVisible = !string.IsNullOrWhiteSpace(Country.NativeName);
+        SetHeader(Country.Name, Country.NativeName, Country.Flag);
+        SetSource("Country data from countries.dev");
         AddBadge(Country.Alpha2Code);
         AddBadge(Country.Alpha3Code);
         AddBadge(Country.Region);
+
+        Button btnCities = new() { Name = "btnCities", Content = "Top cities", Tag = Country };
+        btnCities.Click += AnyClick;
+        AddHeaderAction(btnCities);
 
         StackPanel Section = CreateSection("Overview");
         AddField(Section, "Capital", Country.Capital);
@@ -151,8 +90,8 @@ public partial class CountryCardForm : AppForm
         Section = CreateSection("Maps");
         StackPanel Actions = new();
         Actions.Classes.Add("CardActions");
-        AddMap(Actions, "Open Google Maps", Country.Maps?.GoogleMaps);
-        AddMap(Actions, "Open OpenStreetMap", Country.Maps?.OpenStreetMaps);
+        AddLink(Actions, "Open Google Maps", Country.Maps?.GoogleMaps);
+        AddLink(Actions, "Open OpenStreetMap", Country.Maps?.OpenStreetMaps);
         if (Actions.Children.Count > 0)
             Section.Children.Add(Actions);
         AddSection(Section);
@@ -160,11 +99,10 @@ public partial class CountryCardForm : AppForm
 
     // ● constructor
     /// <summary>
-    /// Creates an empty card for the XAML designer.
+    /// Creates an empty country card using the shared base layout.
     /// </summary>
     public CountryCardForm()
     {
-        InitializeComponent();
     }
     /// <summary>
     /// Creates a detail card using the existing downloaded country instance.
