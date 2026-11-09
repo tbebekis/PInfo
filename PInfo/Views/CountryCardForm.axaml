@@ -1,0 +1,20 @@
+<Views:AppForm xmlns="https://github.com/avaloniaui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:Views="using:PInfo.Views"
+               x:Class="PInfo.Views.CountryCardForm"
+               Classes="FormBackground">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="16" Spacing="16">
+            <Border Classes="CardHeader">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Name="FlagText" Classes="FlagEmoji CardFlag"/>
+                    <TextBlock x:Name="NameText" Classes="CardTitle"/>
+                    <TextBlock x:Name="NativeNameText" Classes="CardSubtitle"/>
+                    <WrapPanel x:Name="BadgePanel"/>
+                </StackPanel>
+            </Border>
+            <StackPanel x:Name="SectionPanel" Spacing="16"/>
+            <TextBlock Text="Country data from countries.dev" Classes="SecondaryText" TextWrapping="Wrap"/>
+        </StackPanel>
+    </ScrollViewer>
+</Views:AppForm>

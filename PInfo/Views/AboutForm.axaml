@@ -1,0 +1,42 @@
+<Views:AppForm xmlns="https://github.com/avaloniaui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:Views="using:PInfo.Views"
+               x:Class="PInfo.Views.AboutForm"
+               Classes="FormBackground">
+    <Grid RowDefinitions="Auto,*" Margin="16">
+        <StackPanel Classes="FormHeader">
+            <TextBlock Text="About" Classes="FormTitle"/>
+            <TextBlock Text="A little more about PInfo" Classes="BodyText"/>
+        </StackPanel>
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Spacing="16">
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="PInfo" Classes="FormTitle"/>
+                        <TextBlock Text="Useful information, all in one place."
+                                   Classes="ListItemTitle"/>
+                        <TextBlock Text="A free, open-source Android application built with Avalonia UI. Explore information from public services, with downloaded country data available offline."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Data sources" Classes="ListItemTitle"/>
+                        <TextBlock Text="Country information is provided by countries.dev."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <TextBlock Text="https://countries.dev" Classes="SecondaryText" TextWrapping="Wrap"/>
+                        <TextBlock Text="Downloaded country data is refreshed after 30 days when the Countries service is opened. If a refresh fails, previously downloaded data remains available."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Created by Theo Bebekis" Classes="ListItemTitle"/>
+                        <TextBlock Text="Copyright (c) 2026 Theo Bebekis. See License."
+                                   Classes="SecondaryText" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Views:AppForm>

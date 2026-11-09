@@ -1,0 +1,30 @@
+<Views:AppForm xmlns="https://github.com/avaloniaui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:Views="using:PInfo.Views"
+               x:Class="PInfo.Views.SettingsForm"
+               Classes="FormBackground">
+    <Grid RowDefinitions="Auto,*" Margin="16">
+        <StackPanel Classes="FormHeader">
+            <TextBlock Text="Settings" Classes="FormTitle"/>
+            <TextBlock Text="Make PInfo feel like home" Classes="BodyText"/>
+        </StackPanel>
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Spacing="16">
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Appearance" Classes="ListItemTitle"/>
+                        <TextBlock Text="Choose your application theme. Changes apply immediately."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <ComboBox x:Name="cboTheme" Classes="ChoiceBox"
+                                  AutomationProperties.Name="Application theme"/>
+                        <TextBlock x:Name="SaveStatusText" Classes="SecondaryText" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+                <Border x:Name="SaveNotice" Classes="NoticePanel" IsVisible="False">
+                    <TextBlock Text="The theme is active, but your preference could not be saved. Choose another theme to retry."
+                               Classes="NoticeText"/>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Views:AppForm>
