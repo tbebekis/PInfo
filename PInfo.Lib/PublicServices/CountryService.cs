@@ -3,7 +3,7 @@
 namespace PInfo;
 
 /// <summary>
-/// Loads complete country records from countries.dev and caches them in memory and private storage.
+/// Loads country records through SQLite and caches city records in JSON files.
 /// </summary>
 public class CountryService : PublicService
 {
@@ -17,16 +17,6 @@ public class CountryService : PublicService
     volatile IReadOnlyList<CountryModel> fCountries = Array.Empty<CountryModel>();
     DateTime fCountriesLoadedUtc = DateTime.MinValue;
 
-    /// <summary>
-    /// Returns the persistent cache path without creating directories.
-    /// </summary>
-    string GetCachePath()
-    {
-        string Root = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        if (string.IsNullOrWhiteSpace(Root))
-            throw new IOException("The application data directory is unavailable.");
-        return Path.Combine(Root, "PInfo", "Data", "countries-full.json");
-    }
     /// <summary>
     /// Deserializes, validates, and sorts a complete country collection.
     /// </summary>
@@ -50,60 +40,42 @@ public class CountryService : PublicService
         return Items.OrderBy(Item => Item.Name, StringComparer.OrdinalIgnoreCase).ToList().AsReadOnly();
     }
     /// <summary>
-    /// Reads a valid disk cache, falling back to the API when the cache is unavailable or invalid.
+    /// Reads countries from SQLite. Missing data or storage failure falls back to the API, never to JSON.
     /// </summary>
-    async Task<IReadOnlyList<CountryModel>> ReadCacheAsync(CancellationToken CancellationToken)
+    async Task<(IReadOnlyList<CountryModel> Items, DateTime UpdatedUtc)> ReadCountryStorageAsync(
+        CancellationToken CancellationToken)
     {
         try
         {
-            string FilePath = GetCachePath();
-            DateTime SavedUtc = File.GetLastWriteTimeUtc(FilePath);
-            string Json = await File.ReadAllTextAsync(FilePath, CancellationToken).ConfigureAwait(false);
-            IReadOnlyList<CountryModel> Items = ReadCountries(Json, CancellationToken);
-            fCountriesLoadedUtc = SavedUtc;
-            return Items;
+            return await Task.Run(() =>
+            {
+                List<CountryModel> Items = Db.GetCountries(out DateTime UpdatedUtc, CancellationToken);
+                return ((IReadOnlyList<CountryModel>)Items.AsReadOnly(), UpdatedUtc);
+            }, CancellationToken).ConfigureAwait(false);
         }
-        catch (IOException)
+        catch (Exception Ex) when (Ex is SqliteException || Ex is IOException || Ex is UnauthorizedAccessException)
         {
-            return Array.Empty<CountryModel>();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Array.Empty<CountryModel>();
-        }
-        catch (JsonException)
-        {
-            return Array.Empty<CountryModel>();
+            ExceptionLog.WriteException("CountryService.ReadCountryStorageAsync", Ex, false);
+            return (Array.Empty<CountryModel>(), DateTime.MinValue);
         }
     }
     /// <summary>
-    /// Writes a temporary file before replacing the cache in the same directory.
+    /// Saves the complete country collection and refresh timestamp on a worker thread.
+    /// Returns a warning on storage failure, leaving the transaction rolled back and memory data usable.
     /// </summary>
-    async Task SaveCacheAsync(string Json, CancellationToken CancellationToken)
+    async Task<string> SaveCountryStorageAsync(IReadOnlyList<CountryModel> Items, DateTime UpdatedUtc,
+        CancellationToken CancellationToken)
     {
-        string FilePath = GetCachePath();
-        string TemporaryPath = FilePath + "." + Guid.NewGuid().ToString("N") + ".tmp";
-        Directory.CreateDirectory(Path.GetDirectoryName(FilePath));
         try
         {
-            await File.WriteAllTextAsync(TemporaryPath, Json, CancellationToken).ConfigureAwait(false);
-            CancellationToken.ThrowIfCancellationRequested();
-            File.Move(TemporaryPath, FilePath, true);
+            await Task.Run(() => Db.SaveCountries(Items, UpdatedUtc, CancellationToken), CancellationToken)
+                .ConfigureAwait(false);
+            return string.Empty;
         }
-        finally
+        catch (Exception Ex) when (Ex is SqliteException || Ex is IOException || Ex is UnauthorizedAccessException)
         {
-            try
-            {
-                File.Delete(TemporaryPath);
-            }
-            catch (IOException)
-            {
-                // A leftover temporary file must not hide the original outcome.
-            }
-            catch (UnauthorizedAccessException)
-            {
-                // A leftover temporary file must not hide the original outcome.
-            }
+            ExceptionLog.WriteException("CountryService.SaveCountryStorageAsync", Ex, false);
+            return "Countries were loaded, but could not be saved to the database for offline use.";
         }
     }
 
@@ -123,7 +95,10 @@ public class CountryService : PublicService
     /// </summary>
     string GetCitiesCachePath(string CountryCode)
     {
-        return Path.Combine(Path.GetDirectoryName(GetCachePath()), "Cities", CountryCode + ".json");
+        string Root = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        if (string.IsNullOrWhiteSpace(Root))
+            throw new IOException("The application data directory is unavailable.");
+        return Path.Combine(Root, "PInfo", "Data", "Cities", CountryCode + ".json");
     }
     /// <summary>
     /// Validates the API payload and returns up to 100 cities ordered by descending population.
@@ -233,7 +208,7 @@ public class CountryService : PublicService
 
     // ● public
     /// <summary>
-    /// Loads countries from memory, disk, or the API, in that order. Serializes concurrent loads.
+    /// Loads countries from memory, SQLite, or the API, in that order. Serializes concurrent loads.
     /// Refreshes data older than 30 days. Failed refreshes return Success with cached countries and a warning.
     /// Cancellation returns Cancelled, including while waiting for another load.
     /// A successful download remains available in memory if persistence fails; ReasonPhrase contains a warning.
@@ -251,19 +226,25 @@ public class CountryService : PublicService
             CancellationToken.ThrowIfCancellationRequested();
             if (fCountries.Count == 0)
             {
-                IReadOnlyList<CountryModel> CachedCountries = await ReadCacheAsync(CancellationToken).ConfigureAwait(false);
+                var Stored = await ReadCountryStorageAsync(CancellationToken).ConfigureAwait(false);
                 CancellationToken.ThrowIfCancellationRequested();
-                if (CachedCountries.Count > 0)
-                    fCountries = CachedCountries;
+                if (Stored.Items.Count > 0)
+                {
+                    fCountries = Stored.Items;
+                    fCountriesLoadedUtc = Stored.UpdatedUtc;
+                }
             }
 
-            if (fCountries.Count > 0 && DateTime.UtcNow - fCountriesLoadedUtc <= TimeSpan.FromDays(CacheLifetimeDays))
+            DateTime Now = DateTime.UtcNow;
+            if (fCountries.Count > 0 && fCountriesLoadedUtc <= Now
+                && Now - fCountriesLoadedUtc <= TimeSpan.FromDays(CacheLifetimeDays))
             {
                 Result.ResultStatus = ApiClientResultStatus.Success;
                 return Result;
             }
 
             Result = await PublicApiClient.GetAsync(CountriesUrl, CancellationToken).ConfigureAwait(false);
+            CancellationToken.ThrowIfCancellationRequested();
             if (Result.ResultStatus != ApiClientResultStatus.Success)
             {
                 if (Result.ResultStatus == ApiClientResultStatus.Error && fCountries.Count > 0)
@@ -275,21 +256,13 @@ public class CountryService : PublicService
             }
 
             ReadOnlyCollection<CountryModel> Items = ReadCountries(Result.ResponseJsonText, CancellationToken);
-            try
-            {
-                await SaveCacheAsync(Result.ResponseJsonText, CancellationToken).ConfigureAwait(false);
-            }
-            catch (IOException)
-            {
-                Result.ReasonPhrase = "Countries were loaded, but could not be saved for offline use.";
-            }
-            catch (UnauthorizedAccessException)
-            {
-                Result.ReasonPhrase = "Countries were loaded, but could not be saved for offline use.";
-            }
+            DateTime DownloadedUtc = DateTime.UtcNow;
+            string SaveWarning = await SaveCountryStorageAsync(Items, DownloadedUtc, CancellationToken).ConfigureAwait(false);
             CancellationToken.ThrowIfCancellationRequested();
             fCountries = Items;
-            fCountriesLoadedUtc = DateTime.UtcNow;
+            fCountriesLoadedUtc = DownloadedUtc;
+            if (!string.IsNullOrEmpty(SaveWarning))
+                Result.ReasonPhrase = SaveWarning;
             Result.ResultStatus = ApiClientResultStatus.Success;
         }
         catch (OperationCanceledException) when (CancellationToken.IsCancellationRequested)

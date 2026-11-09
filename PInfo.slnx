@@ -2,5 +2,6 @@
   <Project Path="PInfo.Android/PInfo.Android.csproj">
     <Deploy />
   </Project>
+  <Project Path="PInfo.Lib/PInfo.Lib.csproj" />
   <Project Path="PInfo/PInfo.csproj" />
 </Solution>

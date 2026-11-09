@@ -164,7 +164,7 @@ public class CityListForm : AppListForm
         if (fCountryCode.Length != 2 || fCountryCode.Any(Character => Character < 'A' || Character > 'Z'))
             throw new ArgumentException("The country must have a two-letter ISO code.", nameof(Country));
 
-        fService = AppHost.PublicServices.Select(Item => Item.Service).OfType<CountryService>().Single();
+        fService = Lib.Countries;
         Classes.Add("CompactTitle");
         Classes.Add("HideResultCount");
         SetHeader(fCountryName, string.Empty,

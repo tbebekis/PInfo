@@ -65,7 +65,7 @@ public class CountryCardForm : AppCardForm
             AddField(Section, "Latitude", Country.LatLng[0].ToString("0.####", CultureInfo.CurrentCulture) + "°");
             AddField(Section, "Longitude", Country.LatLng[1].ToString("0.####", CultureInfo.CurrentCulture) + "°");
         }
-        CountryService Service = AppHost.PublicServices.Select(Item => Item.Service).OfType<CountryService>().Single();
+        CountryService Service = Lib.Countries;
         AddField(Section, "Bordering countries", JoinValues(Country.Borders?.Select(Code =>
             Service.Countries.FirstOrDefault(Item => string.Equals(Item.Alpha3Code, Code, StringComparison.OrdinalIgnoreCase))?.Name ?? Code)));
         AddSection(Section);

@@ -84,7 +84,7 @@ public class CountryListForm : AppListForm
     /// </summary>
     public CountryListForm()
     {
-        fService = AppHost.PublicServices.Select(Item => Item.Service).OfType<CountryService>().Single();
+        fService = Lib.Countries;
         SetHeader("Countries", "Explore countries around the world", "Search by country name or ISO code");
         EmptyMessage = "No countries match your search.";
         ItemList.ItemTemplate = new FuncDataTemplate<CountryModel>(

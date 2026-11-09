@@ -16,7 +16,7 @@ static public class AppHost
     static ReadOnlyCollection<PublicServiceItem> RegisterServices()
     {
         List<PublicServiceItem> Items = new();
-        Items.Add(new PublicServiceItem(new CountryService(), () => new CountryListForm()));
+        Items.Add(new PublicServiceItem(Lib.Countries, () => new CountryListForm()));
 
         HashSet<string> Names = new(StringComparer.OrdinalIgnoreCase);
         foreach (PublicServiceItem Item in Items)
@@ -31,7 +31,7 @@ static public class AppHost
     /// <summary>
     /// The shared preferences, loaded once from private storage.
     /// </summary>
-    static public Settings Settings { get; } = PInfo.Settings.Load();
+    static public Settings Settings => Lib.Settings;
 
     /// <summary>
     /// The registered services and their form factories, exposed as a read-only collection.

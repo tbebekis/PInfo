@@ -7,6 +7,7 @@ public partial class App : Application
     public override void Initialize()
     {
         GlobalExceptionHandler.Initialize();
+        Lib.Initialize();
         AvaloniaXamlLoader.Load(this);
         ThemeManager.Apply(AppHost.Settings.Theme);
 #if DEBUG
