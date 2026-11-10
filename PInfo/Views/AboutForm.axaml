@@ -58,6 +58,35 @@
                 </Border>
                 <Border Classes="ListItem">
                     <StackPanel Spacing="12">
+                        <TextBlock Text="Exchange Rates" Classes="ListItemTitle"/>
+                        <TextBlock Text="Currency information and blended reference rates are provided by Frankfurter, using central-bank and other official data sources. These are reference rates rather than live trading quotes or bank conversion offers. Each rate displays its observation date. The currency catalogue is reused for seven days and rates for three hours, with older saved data available if a refresh fails."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <HyperlinkButton Content="Frankfurter" NavigateUri="https://frankfurter.dev/"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Cryptocurrencies" Classes="ListItemTitle"/>
+                        <TextBlock Text="Cryptocurrency information and daily blended reference prices are provided by Frankfurter. Coverage is limited to assets supported by its sources. Prices are shown per one cryptocurrency unit in available fiat currencies, with individual observation dates. These are reference prices, not live market quotes. The catalogue is reused for seven days and prices for three hours, with saved-data fallback if a refresh fails."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <HyperlinkButton Content="Frankfurter" NavigateUri="https://frankfurter.dev/"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="World Bank" Classes="ListItemTitle"/>
+                        <TextBlock Text="Annual country indicators come from the World Bank's World Development Indicators database. Population, GDP per capita in current US dollars, consumer-price inflation, modeled ILO unemployment, life expectancy, real GDP growth, Internet use, current health expenditure and forest area may have different latest observation years. Graphs connect reported annual observations and leave missing years disconnected; no intermediate measurements are invented. Each indicator links to its sources and methodology. Downloaded data is reused for 30 days and retained if a refresh fails."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <TextBlock Text="The same country view includes intentional homicides per 100,000 people (UNODC via WDI) and four Worldwide Governance Indicators: Voice and Accountability, Control of Corruption, Rule of Law and Political Stability. WGI uses official absolute governance scores from 0 to 100, with higher values indicating better governance; these are perception-based composites with uncertainty, not percentages or global ranks. Homicide rates do not represent overall crime. WDI and WGI keep separate source update dates and offline caches."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <HyperlinkButton Content="World Bank Open Data" NavigateUri="https://data.worldbank.org/"/>
+                        <HyperlinkButton Content="Worldwide Governance Indicators" NavigateUri="https://www.worldbank.org/en/publication/worldwide-governance-indicators"/>
+                        <HyperlinkButton Content="Data licences and terms" NavigateUri="https://datacatalog.worldbank.org/public-licenses"/>
+                        <HyperlinkButton Content="CC BY 4.0" NavigateUri="https://creativecommons.org/licenses/by/4.0/"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
                         <TextBlock Text="Created by Theo Bebekis" Classes="ListItemTitle"/>
                         <TextBlock Text="Copyright (c) 2026 Theo Bebekis. See License."
                                    Classes="SecondaryText" TextWrapping="Wrap"/>

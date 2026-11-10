@@ -554,5 +554,39 @@
         <Style Selector="TextBlock.WeatherMinimum">
             <Setter Property="Foreground" Value="#368EDB"/>
         </Style>
+        <Style Selector="Border.WorldBankChart">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="4"/>
+        </Style>
+        <Style Selector="Path.WorldBankGrid">
+            <Setter Property="Stroke" Value="{DynamicResource CardBorderColor}"/>
+        </Style>
+        <Style Selector="Path.WorldBankCurve">
+            <Setter Property="Stroke" Value="#368EDB"/>
+        </Style>
+        <Style Selector="Border.WorldBankMarker">
+            <Setter Property="Background" Value="#368EDB"/>
+        </Style>
+        <Style Selector="Button.WorldBankPoint">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="Button.WorldBankPoint.Selected Border.WorldBankMarker">
+            <Setter Property="Background" Value="#E47732"/>
+        </Style>
+        <Style Selector="Button.WorldBankPeriod">
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+        <Style Selector="Button.WorldBankPeriod.Selected">
+            <Setter Property="BorderBrush" Value="{DynamicResource ToolbarForeground}"/>
+        </Style>
     </Application.Styles>
 </Application>

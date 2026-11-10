@@ -43,6 +43,10 @@ public class CountryCardForm : AppCardForm
         Wikipedia.Click += (Sender, Args) => MainView.Current?.PushForm(new WikipediaForm(Country.Name, Country.Region));
         AddHeaderAction(Wikipedia);
 
+        Button WorldBank = new() { Content = "World Bank" };
+        WorldBank.Click += (Sender, Args) => MainView.Current?.PushForm(new WorldBankListForm(Country));
+        AddHeaderAction(WorldBank);
+
         StackPanel Section = CreateSection("Overview");
         AddField(Section, "Capital", Country.Capital);
         AddField(Section, "Region", Country.Region);
