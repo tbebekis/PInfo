@@ -536,10 +536,23 @@
         <Style Selector="Border.WeatherPoint">
             <Setter Property="Background" Value="{DynamicResource PrimaryBack}"/>
         </Style>
-        <Style Selector="Border.WeatherRange">
-            <Setter Property="Background" Value="{DynamicResource BadgeBackground}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBack}"/>
-            <Setter Property="BorderThickness" Value="0,1"/>
+        <Style Selector="Path.WeatherCurve.WeatherMaximum">
+            <Setter Property="Stroke" Value="#E47732"/>
+        </Style>
+        <Style Selector="Path.WeatherCurve.WeatherMinimum">
+            <Setter Property="Stroke" Value="#368EDB"/>
+        </Style>
+        <Style Selector="Border.WeatherPoint.WeatherMaximum">
+            <Setter Property="Background" Value="#E47732"/>
+        </Style>
+        <Style Selector="Border.WeatherPoint.WeatherMinimum">
+            <Setter Property="Background" Value="#368EDB"/>
+        </Style>
+        <Style Selector="TextBlock.WeatherMaximum">
+            <Setter Property="Foreground" Value="#E47732"/>
+        </Style>
+        <Style Selector="TextBlock.WeatherMinimum">
+            <Setter Property="Foreground" Value="#368EDB"/>
         </Style>
     </Application.Styles>
 </Application>

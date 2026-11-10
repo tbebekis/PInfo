@@ -41,54 +41,20 @@ public class WeatherForm : AppForm
         return Result;
     }
     /// <summary>
-    /// Reserves the shared curve row for two-hour columns and draws a range for daily columns.
+    /// Connects forecast temperatures with a smooth visual curve and labels, leaving missing periods disconnected.
     /// </summary>
-    /// <param name="Period">The column summary.</param>
-    /// <param name="ScaleMin">The table scale minimum.</param>
-    /// <param name="ScaleMax">The table scale maximum.</param>
-    /// <returns>The daily range diagram or an empty placeholder beneath the shared hourly curve.</returns>
-    Control TemperatureChart(WeatherPeriod Period, double ScaleMin, double ScaleMax)
-    {
-        if (!Period.IsDaily)
-            return new Border();
-        if (!Period.TemperatureMin.HasValue || !Period.TemperatureMax.HasValue)
-            return Label("—");
-        Canvas Chart = new() { Height = 140 };
-        Border Band = new();
-        Band.Classes.Add("WeatherRange");
-        TextBlock High = Label(WeatherDisplay.Temperature(Period.TemperatureMax, "0", false));
-        TextBlock Low = Label(WeatherDisplay.Temperature(Period.TemperatureMin, "0", false));
-        Chart.Children.Add(Band);
-        Chart.Children.Add(High);
-        Chart.Children.Add(Low);
-        Chart.SizeChanged += (Sender, Args) =>
-        {
-            double Width = Math.Max(0, Chart.Bounds.Width);
-            double Top = 28 + (ScaleMax - Period.TemperatureMax.Value) / (ScaleMax - ScaleMin) * 80;
-            double Bottom = 28 + (ScaleMax - Period.TemperatureMin.Value) / (ScaleMax - ScaleMin) * 80;
-            Band.Width = Math.Max(0, Width - 4);
-            Band.Height = Math.Max(2, Bottom - Top);
-            Canvas.SetLeft(Band, 2);
-            Canvas.SetTop(Band, Top);
-            High.Width = Width;
-            Low.Width = Width;
-            Canvas.SetTop(High, Top - 26);
-            Canvas.SetTop(Low, Bottom + 2);
-        };
-        return Chart;
-    }
-    /// <summary>
-    /// Connects two-hour maxima with a smooth visual curve and labels, leaving missing periods disconnected.
-    /// </summary>
-    /// <param name="Periods">The ordered two-hour summaries.</param>
+    /// <param name="Periods">The ordered forecast summaries.</param>
+    /// <param name="Minimum">Selects daily minima instead of maxima.</param>
     /// <param name="ScaleMin">The shared Celsius scale minimum.</param>
     /// <param name="ScaleMax">The shared Celsius scale maximum.</param>
     /// <returns>A noninteractive overlay aligned with the selectable columns.</returns>
-    Canvas CreateHourlyCurve(IReadOnlyList<WeatherPeriod> Periods, double ScaleMin, double ScaleMax)
+    Canvas CreateTemperatureCurve(IReadOnlyList<WeatherPeriod> Periods, bool Minimum, double ScaleMin, double ScaleMax)
     {
+        bool Daily = Periods[0].IsDaily;
+        string SeriesClass = Minimum ? "WeatherMinimum" : "WeatherMaximum";
         Canvas Chart = new()
         {
-            Width = Periods.Count * 80, Height = 120, Margin = new Thickness(0, 90, 0, 0),
+            Width = Periods.Count * 80, Height = Daily ? 140 : 120, Margin = new Thickness(0, 90, 0, 0),
             VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top, IsHitTestVisible = false
         };
         StreamGeometry Geometry = new();
@@ -98,7 +64,7 @@ public class WeatherForm : AppForm
             Point Previous = default;
             for (int Index = 0; Index < Periods.Count; Index++)
             {
-                double? Temperature = Periods[Index].TemperatureMax;
+                double? Temperature = Minimum ? Periods[Index].TemperatureMin : Periods[Index].TemperatureMax;
                 if (!Temperature.HasValue)
                 {
                     if (Connected)
@@ -107,11 +73,13 @@ public class WeatherForm : AppForm
                     TextBlock Missing = Label("—");
                     Missing.Width = 80;
                     Canvas.SetLeft(Missing, Index * 80);
-                    Canvas.SetTop(Missing, 44);
+                    Canvas.SetTop(Missing, Minimum ? 104 : 4);
+                    if (Daily)
+                        Missing.Classes.Add(SeriesClass);
                     Chart.Children.Add(Missing);
                     continue;
                 }
-                Point Current = new(Index * 80 + 40, 32 + (ScaleMax - Temperature.Value) / (ScaleMax - ScaleMin) * 64);
+                Point Current = new(Index * 80 + 40, 32 + (ScaleMax - Temperature.Value) / (ScaleMax - ScaleMin) * (Daily ? 72 : 64));
                 if (!Connected)
                     Context.BeginFigure(Current, false);
                 else
@@ -123,13 +91,17 @@ public class WeatherForm : AppForm
                 Previous = Current;
                 Border Dot = new() { Width = 6, Height = 6, CornerRadius = new CornerRadius(3) };
                 Dot.Classes.Add("WeatherPoint");
+                if (Daily)
+                    Dot.Classes.Add(SeriesClass);
                 Canvas.SetLeft(Dot, Current.X - 3);
                 Canvas.SetTop(Dot, Current.Y - 3);
                 Chart.Children.Add(Dot);
                 TextBlock Value = Label(WeatherDisplay.Temperature(Temperature, "0", false));
                 Value.Width = 80;
                 Canvas.SetLeft(Value, Index * 80);
-                Canvas.SetTop(Value, Current.Y - 28);
+                Canvas.SetTop(Value, Minimum ? Current.Y + 8 : Current.Y - 28);
+                if (Daily)
+                    Value.Classes.Add(SeriesClass);
                 Chart.Children.Add(Value);
             }
             if (Connected)
@@ -137,6 +109,8 @@ public class WeatherForm : AppForm
         }
         Avalonia.Controls.Shapes.Path Curve = new() { Data = Geometry, StrokeThickness = 2 };
         Curve.Classes.Add("WeatherCurve");
+        if (Daily)
+            Curve.Classes.Add(SeriesClass);
         Chart.Children.Insert(0, Curve);
         return Chart;
     }
@@ -145,10 +119,8 @@ public class WeatherForm : AppForm
     /// </summary>
     /// <param name="Forecast">The forecast snapshot used by the detail card.</param>
     /// <param name="Period">The selected interval.</param>
-    /// <param name="ScaleMin">The shared temperature scale minimum.</param>
-    /// <param name="ScaleMax">The shared temperature scale maximum.</param>
     /// <returns>The clickable forecast column.</returns>
-    Button CreateColumn(WeatherForecast Forecast, WeatherPeriod Period, double ScaleMin, double ScaleMax)
+    Button CreateColumn(WeatherForecast Forecast, WeatherPeriod Period)
     {
         Grid Column = new() { RowDefinitions = new RowDefinitions(Period.IsDaily ? "48,42,140,38,62" : "48,42,120,38,62") };
         string Caption = Period.IsDaily ? Period.StartLocal.ToString("ddd\ndd", CultureInfo.CurrentCulture)
@@ -163,9 +135,6 @@ public class WeatherForm : AppForm
             Icon.Classes.Add("WeatherSun");
         Grid.SetRow(Icon, 1);
         Column.Children.Add(Icon);
-        Control Chart = TemperatureChart(Period, ScaleMin, ScaleMax);
-        Grid.SetRow(Chart, 2);
-        Column.Children.Add(Chart);
         TextBlock Precipitation = Label(WeatherDisplay.Number(Period.Precipitation));
         Grid.SetRow(Precipitation, 3);
         Column.Children.Add(Precipitation);
@@ -208,6 +177,17 @@ public class WeatherForm : AppForm
         TextBlock Hint = new() { Text = "Swipe horizontally for more " + (Periods[0].IsDaily ? "days" : "hours") + " →" };
         Hint.Classes.Add("SecondaryText");
         Section.Children.Add(Hint);
+        if (Periods[0].IsDaily)
+        {
+            StackPanel Legend = new() { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 16 };
+            TextBlock High = Label("● Max", 14);
+            High.Classes.Add("WeatherMaximum");
+            TextBlock Low = Label("● Min", 14);
+            Low.Classes.Add("WeatherMinimum");
+            Legend.Children.Add(High);
+            Legend.Children.Add(Low);
+            Section.Children.Add(Legend);
+        }
         Grid Table = new() { ColumnDefinitions = new ColumnDefinitions("56,*") };
         Grid Columns = new() { ColumnDefinitions = new ColumnDefinitions(string.Join(",", Periods.Select(Item => "80"))) };
         Grid Labels = new() { RowDefinitions = new RowDefinitions(Periods[0].IsDaily ? "48,42,140,38,62" : "48,42,120,38,62") };
@@ -223,14 +203,15 @@ public class WeatherForm : AppForm
         double ScaleMax = Periods.Where(Item => Item.TemperatureMax.HasValue).Select(Item => Item.TemperatureMax.Value).DefaultIfEmpty(1).Max() + 1;
         for (int Index = 0; Index < Periods.Count; Index++)
         {
-            Button Column = CreateColumn(Forecast, Periods[Index], ScaleMin, ScaleMax);
+            Button Column = CreateColumn(Forecast, Periods[Index]);
             Grid.SetColumn(Column, Index);
             Columns.Children.Add(Column);
         }
         Grid Plot = new();
         Plot.Children.Add(Columns);
-        if (!Periods[0].IsDaily)
-            Plot.Children.Add(CreateHourlyCurve(Periods, ScaleMin, ScaleMax));
+        Plot.Children.Add(CreateTemperatureCurve(Periods, false, ScaleMin, ScaleMax));
+        if (Periods[0].IsDaily)
+            Plot.Children.Add(CreateTemperatureCurve(Periods, true, ScaleMin, ScaleMax));
         ScrollViewer Data = new()
         {
             Content = Plot,

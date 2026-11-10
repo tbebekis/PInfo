@@ -44,10 +44,6 @@ static public partial class WeatherService
         /// </summary>
         public string LastModified { get; set; } = string.Empty;
     }
-    static readonly HttpClient fClient = new(new HttpClientHandler
-    {
-        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-    });
     static readonly ConcurrentDictionary<string, SemaphoreSlim> fLoadLocks = new(StringComparer.Ordinal);
     static readonly ConcurrentDictionary<string, CacheEntry> fCaches = new(StringComparer.Ordinal);
     static readonly ConcurrentDictionary<string, DateTime> fRetryAfter = new(StringComparer.Ordinal);
@@ -241,7 +237,7 @@ static public partial class WeatherService
             Request.Headers.UserAgent.ParseAdd(UserAgent);
             if (!string.IsNullOrEmpty(Cached?.LastModified))
                 Request.Headers.TryAddWithoutValidation("If-Modified-Since", Cached.LastModified);
-            using HttpResponseMessage Response = await fClient.SendAsync(Request, CancellationToken).ConfigureAwait(false);
+            using HttpResponseMessage Response = await PublicApiClient.SendAsync(Request, CancellationToken).ConfigureAwait(false);
             Result.StatusCode = Response.StatusCode;
             Now = DateTime.UtcNow;
             if (!Response.IsSuccessStatusCode && Response.StatusCode != HttpStatusCode.NotModified)

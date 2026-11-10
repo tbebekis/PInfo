@@ -49,6 +49,15 @@
                 </Border>
                 <Border Classes="ListItem">
                     <StackPanel Spacing="12">
+                        <TextBlock Text="Wikipedia" Classes="ListItemTitle"/>
+                        <TextBlock Text="Article search results and introductory excerpts come from English Wikipedia. Text is credited to Wikipedia contributors under CC BY-SA 4.0; each article view links to the source, contributor history and licence. Downloaded responses are reused for seven days and retained as an offline fallback."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <HyperlinkButton Content="English Wikipedia" NavigateUri="https://en.wikipedia.org/"/>
+                        <HyperlinkButton Content="Licence: CC BY-SA 4.0" NavigateUri="https://creativecommons.org/licenses/by-sa/4.0/"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
                         <TextBlock Text="Created by Theo Bebekis" Classes="ListItemTitle"/>
                         <TextBlock Text="Copyright (c) 2026 Theo Bebekis. See License."
                                    Classes="SecondaryText" TextWrapping="Wrap"/>

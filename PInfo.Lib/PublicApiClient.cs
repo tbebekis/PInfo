@@ -62,12 +62,15 @@ public class ApiClientResult
 }
 
 /// <summary>
-/// Shared HttpClient
+/// Shares one reusable HTTP client for public services and file downloads.
 /// </summary>
 static public class PublicApiClient
 {
     // ● private
-    static readonly HttpClient ApiClient = new HttpClient();
+    static readonly HttpClient ApiClient = new(new HttpClientHandler
+    {
+        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+    });
     //static readonly System.Threading.Lock syncLock = new();
 
     // ● internal
@@ -92,6 +95,19 @@ static public class PublicApiClient
     }
 
     // ● public
+    /// <summary>
+    /// Sends a caller-configured request and buffers its response body using the shared client.
+    /// Returns all HTTP statuses without interpreting them; transport, timeout, and cancellation exceptions propagate.
+    /// The caller owns and must dispose both the request and the returned response.
+    /// </summary>
+    /// <param name="Request">The request, including any service-specific headers.</param>
+    /// <param name="CancellationToken">Cancels sending and buffering the response.</param>
+    /// <returns>The response with its status, headers, and buffered content.</returns>
+    static public Task<HttpResponseMessage> SendAsync(HttpRequestMessage Request, CancellationToken CancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(Request);
+        return ApiClient.SendAsync(Request, HttpCompletionOption.ResponseContentRead, CancellationToken);
+    }
     /// <summary>
     /// Streams a response to a new file without buffering the entire body in memory.
     /// The caller owns the destination and must remove it after failure or cancellation.

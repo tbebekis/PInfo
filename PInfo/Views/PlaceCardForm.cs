@@ -22,6 +22,10 @@ public class PlaceCardForm : AppCardForm
         SetHeader(DisplayName, string.Join("\n", new[] { Place.AdministrativeArea, OriginalName }
             .Where(Value => !string.IsNullOrWhiteSpace(Value))), string.Empty);
         AddBadge(Category.Name);
+        Button Wikipedia = new() { Content = "📖 Wikipedia" };
+        Wikipedia.Click += (Sender, Args) => MainView.Current?.PushForm(new WikipediaForm(DisplayName, Place.AdministrativeArea + " · " + Place.CountryCode));
+        AddHeaderAction(Wikipedia);
+
         AddBadge(Place.CountryCode);
         StackPanel Section = CreateSection("Place details");
         AddField(Section, "Type", Category.GetFeatureName(Place));

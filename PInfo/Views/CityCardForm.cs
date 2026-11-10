@@ -19,6 +19,10 @@ public class CityCardForm : AppCardForm
         string OriginalName = string.Equals(DisplayName, City.Name, StringComparison.Ordinal) ? string.Empty : City.Name;
         SetHeader(DisplayName, string.Join("\n", new[] { City.AdministrativeArea, OriginalName }
             .Where(Value => !string.IsNullOrWhiteSpace(Value))), string.Empty);
+        Button Wikipedia = new() { Content = "📖 Wikipedia" };
+        Wikipedia.Click += (Sender, Args) => MainView.Current?.PushForm(new WikipediaForm(DisplayName, City.AdministrativeArea + " · " + City.CountryCode));
+        AddHeaderAction(Wikipedia);
+
         AddBadge(City.CountryCode);
         StackPanel Section = CreateSection("City details");
         AddField(Section, "Population", City.Population.ToString("N0", CultureInfo.CurrentCulture));
