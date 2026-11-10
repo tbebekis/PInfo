@@ -42,14 +42,17 @@ static public partial class Db
     /// <param name="Search">The name fragment to find.</param>
     /// <param name="Page">The zero-based page index.</param>
     /// <param name="CancellationToken">Cancels reading between rows.</param>
+    /// <param name="PageSize">The page size for All Cities, from 10 to 100. Big Cities always uses 100.</param>
     /// <returns>The page, total matching count, and effective page index.</returns>
     static public (List<CityModel> Items, int Total, int Page) GetPlaceCities(string CountryCode,
-        bool BigCities, string Search, int Page, CancellationToken CancellationToken = default)
+        bool BigCities, string Search, int Page, CancellationToken CancellationToken = default, int PageSize = 100)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(CountryCode);
         ArgumentOutOfRangeException.ThrowIfNegative(Page);
         CancellationToken.ThrowIfCancellationRequested();
-        int PageSize = BigCities ? 100 : 50;
+        ArgumentOutOfRangeException.ThrowIfLessThan(PageSize, 10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(PageSize, 100);
+        PageSize = BigCities ? 100 : PageSize;
         string Source = "WITH Cities AS (SELECT * FROM Place WHERE CountryCode = @CountryCode AND FeatureClass = 'P'"
             + (BigCities ? " AND Population >= 15000 ORDER BY Population DESC, Name COLLATE NOCASE, GeoNameId LIMIT 100" : string.Empty)
             + ") ";
@@ -99,9 +102,10 @@ static public partial class Db
     /// <param name="Places">The streaming collection of parsed GeoNames records.</param>
     /// <param name="UpdatedUtc">The successful download time in UTC.</param>
     /// <param name="CancellationToken">Cancels the import before commit.</param>
+    /// <param name="Progress">Receives the final save status and imported record count.</param>
     /// <returns>The number of imported records.</returns>
     static public int SavePlaces(string CountryCode, IEnumerable<PlaceModel> Places, DateTime UpdatedUtc,
-        CancellationToken CancellationToken = default)
+        CancellationToken CancellationToken = default, IProgress<string> Progress = null)
     {
         ArgumentNullException.ThrowIfNull(Places);
         ArgumentException.ThrowIfNullOrWhiteSpace(CountryCode);
@@ -150,12 +154,14 @@ static public partial class Db
         }
         if (Count == 0)
             throw new InvalidDataException("The GeoNames dump contains no places; the previous import was retained.");
+        Progress?.Report($"Saving changes... {Count:N0} records");
         Execute(Connection, Transaction,
             "INSERT INTO DataRefresh (Dataset, Scope, UpdatedUtc) VALUES ('Places', @CountryCode, @UpdatedUtc) "
             + "ON CONFLICT (Dataset, Scope) DO UPDATE SET UpdatedUtc = excluded.UpdatedUtc;",
             Parameter("@CountryCode", CountryCode), Parameter("@UpdatedUtc", UpdatedUtc.ToString("O", CultureInfo.InvariantCulture)));
         CancellationToken.ThrowIfCancellationRequested();
         Transaction.Commit();
+        Progress?.Report($"Done. {Count:N0} records imported.");
         return Count;
     }
 }

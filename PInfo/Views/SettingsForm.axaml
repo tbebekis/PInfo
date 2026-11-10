@@ -20,8 +20,33 @@
                         <TextBlock x:Name="SaveStatusText" Classes="SecondaryText" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Places data" Classes="ListItemTitle"/>
+                        <TextBlock Text="Refresh downloaded places when opened after this many months. Default: 24 months."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <TextBlock Text="Refresh interval (months)" Classes="BodyText"/>
+                        <NumericUpDown x:Name="edtPlacesRefreshMonths" Minimum="1" Maximum="120"
+                                       Increment="1" FormatString="0" AllowSpin="True"
+                                       AutomationProperties.Name="Places refresh interval in months"/>
+                        <Button x:Name="btnSavePlacesRefresh" Content="Save interval" HorizontalAlignment="Left"/>
+                        <TextBlock x:Name="PlacesSaveStatusText" Classes="SecondaryText" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Lists" Classes="ListItemTitle"/>
+                        <TextBlock Text="Items per page for all paged lists. Countries and Big Cities are excluded. Default: 100."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <NumericUpDown x:Name="edtItemsPerPage" Minimum="10" Maximum="100"
+                                       Increment="10" FormatString="0" AllowSpin="True"
+                                       AutomationProperties.Name="Items per page"/>
+                        <Button x:Name="btnSaveItemsPerPage" Content="Save page size" HorizontalAlignment="Left"/>
+                        <TextBlock x:Name="PageSizeSaveStatusText" Classes="SecondaryText" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
                 <Border x:Name="SaveNotice" Classes="NoticePanel" IsVisible="False">
-                    <TextBlock Text="The theme is active, but your preference could not be saved. Choose another theme to retry."
+                    <TextBlock Text="Your preference is active for this session but could not be saved. Please try saving it again."
                                Classes="NoticeText"/>
                 </Border>
             </StackPanel>

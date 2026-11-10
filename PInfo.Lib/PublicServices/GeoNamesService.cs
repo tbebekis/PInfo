@@ -3,7 +3,7 @@
 namespace PInfo;
 
 /// <summary>
-/// Downloads and imports GeoNames country dumps on demand, refreshing after three calendar months.
+/// Downloads and imports GeoNames country dumps on demand, refreshing at the configured interval.
 /// Data is stored in SQLite; this service has no UI dependencies and keeps no full dump in memory.
 /// </summary>
 static public class GeoNamesService
@@ -105,8 +105,10 @@ static public class GeoNamesService
     /// Reads only the expected country text entry directly from the ZIP, without extracting files.
     /// Logs and skips invalid records before insertion; archive and reading failures propagate.
     /// </summary>
-    static IEnumerable<PlaceModel> ReadPlaces(string ZipPath, string CountryCode, CancellationToken CancellationToken)
+    static IEnumerable<PlaceModel> ReadPlaces(string ZipPath, string CountryCode, CancellationToken CancellationToken,
+        IProgress<string> Progress = null)
     {
+        Progress?.Report("Opening ZIP file...");
         using ZipArchive Archive = ZipFile.OpenRead(ZipPath);
         string EntryName = CountryCode + ".txt";
         ZipArchiveEntry[] Entries = Archive.Entries.Where(Item => Item.FullName == EntryName).ToArray();
@@ -114,12 +116,20 @@ static public class GeoNamesService
             throw new InvalidDataException("The ZIP must contain exactly one " + EntryName + " entry.");
         using Stream Input = Entries[0].Open();
         using StreamReader Reader = new(Input, new UTF8Encoding(false, true));
+        Progress?.Report("Reading and inserting data...");
         long LineNumber = 0;
+        long Accepted = 0;
+        long BytesRead = 0;
+        long Started = Environment.TickCount64;
+        long LastReport = Started;
         string Line;
         while ((Line = Reader.ReadLine()) != null)
         {
             CancellationToken.ThrowIfCancellationRequested();
             LineNumber++;
+            // GeoNames dumps use UTF-8 and LF; byte counts provide an approximate import estimate.
+            if (Progress != null)
+                BytesRead += Encoding.UTF8.GetByteCount(Line) + 1;
             if (Line.Length == 0)
                 continue;
             if (!TryParsePlace(Line, CountryCode, out PlaceModel Place, out string Reason))
@@ -129,6 +139,14 @@ static public class GeoNamesService
                 continue;
             }
             yield return Place;
+            Accepted++;
+            // Enumeration resumes after SQLite inserts the yielded record, including that work in the rate.
+            if (Progress != null && Environment.TickCount64 - LastReport >= 500)
+            {
+                Progress.Report($"Reading and inserting data... {Accepted:N0} records"
+                    + PublicApiClient.EstimateRemainingTime(BytesRead, Entries[0].Length, Environment.TickCount64 - Started));
+                LastReport = Environment.TickCount64;
+            }
         }
     }
 
@@ -160,14 +178,16 @@ static public class GeoNamesService
         }
     }
     /// <summary>
-    /// Ensures a country has a GeoNames import no older than three calendar months.
+    /// Ensures a country has a GeoNames import within the configured refresh interval.
     /// Download or import failures retain previous data and return a warning when it is available.
     /// Caller cancellation returns Cancelled. Temporary downloads are removed after every attempt.
     /// </summary>
     /// <param name="CountryCode">The ISO alpha-2 code of a country already stored in SQLite.</param>
     /// <param name="CancellationToken">Cancels waiting, download, or import.</param>
+    /// <param name="Progress">Receives download and import status messages.</param>
     /// <returns>The import outcome. Success may include a stale-data warning.</returns>
-    static public async Task<ApiClientResult> LoadPlacesAsync(string CountryCode, CancellationToken CancellationToken = default)
+    static public async Task<ApiClientResult> LoadPlacesAsync(string CountryCode, CancellationToken CancellationToken = default,
+        IProgress<string> Progress = null)
     {
         string Code = NormalizeCountryCode(CountryCode);
         string Url = "https://download.geonames.org/export/dump/" + Code + ".zip";
@@ -178,24 +198,30 @@ static public class GeoNamesService
         string ZipPath = null;
         try
         {
+            Progress?.Report("Waiting for place data...");
             await LoadLock.WaitAsync(CancellationToken).ConfigureAwait(false);
             LockTaken = true;
+            Progress?.Report("Checking stored data...");
             UpdatedUtc = await Task.Run(() => Db.GetPlacesUpdatedUtc(Code, CancellationToken), CancellationToken).ConfigureAwait(false);
             DateTime Now = DateTime.UtcNow;
-            if (UpdatedUtc != DateTime.MinValue && UpdatedUtc <= Now && UpdatedUtc.AddMonths(3) > Now)
+            int RefreshMonths = Lib.Settings.PlacesRefreshMonths;
+            if (RefreshMonths < 1 || RefreshMonths > 120)
+                RefreshMonths = 24;
+            if (UpdatedUtc != DateTime.MinValue && UpdatedUtc <= Now && UpdatedUtc.AddMonths(RefreshMonths) > Now)
             {
                 Result.ResultStatus = ApiClientResultStatus.Success;
                 return Result;
             }
             ZipPath = Path.Combine(Path.GetTempPath(), "pinfo-geonames-" + Code + "-" + Guid.NewGuid().ToString("N") + ".zip");
-            Result = await PublicApiClient.DownloadFileAsync(Url, ZipPath, CancellationToken).ConfigureAwait(false);
+            Progress?.Report("Downloading ZIP file...");
+            Result = await PublicApiClient.DownloadFileAsync(Url, ZipPath, CancellationToken, Progress).ConfigureAwait(false);
             CancellationToken.ThrowIfCancellationRequested();
             if (Result.ResultStatus == ApiClientResultStatus.Success)
             {
                 DateTime DownloadedUtc = DateTime.UtcNow;
                 // This lock is already held; avoid re-entering ImportPlacesAsync for the same country.
-                await Task.Run(() => Db.SavePlaces(Code, ReadPlaces(ZipPath, Code, CancellationToken),
-                    DownloadedUtc, CancellationToken), CancellationToken).ConfigureAwait(false);
+                await Task.Run(() => Db.SavePlaces(Code, ReadPlaces(ZipPath, Code, CancellationToken, Progress),
+                    DownloadedUtc, CancellationToken, Progress), CancellationToken).ConfigureAwait(false);
                 Result.ReasonPhrase = string.Empty;
             }
             else if (Result.ResultStatus == ApiClientResultStatus.Error && UpdatedUtc != DateTime.MinValue)

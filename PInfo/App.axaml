@@ -120,6 +120,24 @@
             <Setter Property="Foreground" Value="{DynamicResource ToolbarForeground}"/>
         </Style>
 
+        <!-- Paging arrows retain the active theme colors in every interaction state. -->
+        <!-- Fade disabled paging arrows into the form surface while retaining the theme hue. -->
+        <Style Selector="Button.PageNavigation:disabled">
+            <Setter Property="Opacity" Value="0.45"/>
+        </Style>
+        <Style Selector="Button.PageNavigation:disabled /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource PrimaryBack}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ToolbarForeground}"/>
+        </Style>
+        <Style Selector="Button.PageNavigation:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource PrimaryBack}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ToolbarForeground}"/>
+        </Style>
+        <Style Selector="Button.PageNavigation:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource PrimaryBack}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ToolbarForeground}"/>
+        </Style>
+
         <!-- 3. Light Button Style (White background, dark text) -->
         <Style Selector="Button.LightButton">
             <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
@@ -227,7 +245,7 @@
             <Setter Property="BorderBrush" Value="{DynamicResource CardBorderColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="Padding" Value="14,6"/>
         </Style>
 
         <!-- Clickable list rows fill their width and retain standard button interaction. -->
@@ -236,7 +254,8 @@
             <Setter Property="BorderBrush" Value="{DynamicResource CardBorderColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="MinHeight" Value="36"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextColor}"/>
@@ -249,12 +268,23 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
+        <!-- Keep country-list flags within the same text height as other list rows. -->
+        <Style Selector="ListBox.ItemList TextBlock.FlagEmoji">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="LineHeight" Value="22"/>
+        </Style>
+
         <!-- Compact surface for codes and short metadata. -->
         <Style Selector="Border.Badge">
             <Setter Property="Background" Value="{DynamicResource BadgeBackground}"/>
             <Setter Property="CornerRadius" Value="6"/>
             <Setter Property="Padding" Value="8,4"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- List badges should not make a row taller than its title. -->
+        <Style Selector="ListBox.ItemList Border.Badge">
+            <Setter Property="Padding" Value="8,2"/>
         </Style>
 
         <!-- Compact semibold text inside a badge. -->
@@ -267,7 +297,9 @@
         <!-- Consistent search input appearance. -->
         <Style Selector="TextBox.SearchBox">
             <Setter Property="FontSize" Value="16"/>
-            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="MinHeight" Value="36"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="CornerRadius" Value="10"/>
         </Style>
 
@@ -324,6 +356,25 @@
             <Setter Property="FontSize" Value="22"/>
             <Setter Property="MinWidth" Value="48"/>
             <Setter Property="MinHeight" Value="48"/>
+        </Style>
+
+        <!-- Compact main-toolbar dimensions are defined here rather than on individual controls. -->
+        <Style Selector="Border.MainToolbar">
+            <Setter Property="Height" Value="56"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Padding" Value="12,8"/>
+        </Style>
+        <Style Selector="Button.MainToolbarButton">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="MinHeight" Value="0"/>
+            <Setter Property="Padding" Value="12,4"/>
+        </Style>
+        <Style Selector="Button.MainToolbarButton.ToolbarIcon">
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="MinWidth" Value="0"/>
+            <Setter Property="MinHeight" Value="0"/>
         </Style>
 
         <!-- Full-width preference selectors used in settings forms. -->
@@ -419,7 +470,8 @@
         </Style>
         <!-- Buttons for related information displayed below a detail card's header badges. -->
         <Style Selector="Button.CardHeaderAction">
-            <Setter Property="MinHeight" Value="48"/>
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="Padding" Value="10,4"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="Margin" Value="0,0,8,4"/>
         </Style>

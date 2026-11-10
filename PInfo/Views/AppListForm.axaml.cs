@@ -62,6 +62,7 @@ public partial class AppListForm : AppForm
         CancellationTokenSource Cancellation = new();
         fLoadCancellation = Cancellation;
         LoadingProgress.IsVisible = true;
+        PleaseWaitText.IsVisible = true;
         ResultCountText.Text = LoadingText;
         NoticePanel.IsVisible = false;
         EmptyText.IsVisible = false;
@@ -103,6 +104,7 @@ public partial class AppListForm : AppForm
             {
                 fLoadCancellation = null;
                 LoadingProgress.IsVisible = false;
+                PleaseWaitText.IsVisible = false;
                 btnRetry.IsEnabled = true;
             }
             Cancellation.Dispose();
@@ -110,6 +112,24 @@ public partial class AppListForm : AppForm
     }
 
     // ● protected
+    /// <summary>
+    /// Creates a UI progress reporter bound to the current load, ignoring late or cancelled updates.
+    /// Call on the UI thread while loading the list.
+    /// </summary>
+    /// <returns>A reporter that updates the loading status only while this load remains current.</returns>
+    protected IProgress<string> CreateLoadProgress()
+    {
+        CancellationTokenSource Cancellation = fLoadCancellation;
+        long Started = Environment.TickCount64;
+        return new Progress<string>(Message =>
+        {
+            if (Cancellation != null && fLoadCancellation == Cancellation && !Cancellation.IsCancellationRequested)
+            {
+                TimeSpan Elapsed = TimeSpan.FromMilliseconds(Environment.TickCount64 - Started);
+                ResultCountText.Text = Message + $"\nElapsed: {(int)Elapsed.TotalMinutes}:{Elapsed.Seconds:00}";
+            }
+        });
+    }
     /// <summary>
     /// Displays a load error or a non-blocking cache warning.
     /// </summary>

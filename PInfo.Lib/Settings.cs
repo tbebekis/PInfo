@@ -37,7 +37,13 @@ public class Settings
         {
             Settings Result = JsonSerializer.Deserialize<Settings>(File.ReadAllText(GetFilePath()), fJsonOptions);
             if (Result != null && Enum.IsDefined(Result.Theme))
+            {
+                if (Result.PlacesRefreshMonths < 1 || Result.PlacesRefreshMonths > 120)
+                    Result.PlacesRefreshMonths = 24;
+                if (Result.ItemsPerPage < 10 || Result.ItemsPerPage > 100)
+                    Result.ItemsPerPage = 100;
                 return Result;
+            }
         }
         catch (IOException)
         {
@@ -56,14 +62,15 @@ public class Settings
     /// <summary>
     /// Saves a snapshot through a temporary file, preserving the previous file when writing fails.
     /// </summary>
-    /// <returns>True when saved; false if storage is unavailable or the selected theme is invalid.</returns>
+    /// <returns>True when saved; false if storage is unavailable or a preference is invalid.</returns>
     public async Task<bool> SaveAsync()
     {
         await fSaveLock.WaitAsync().ConfigureAwait(false);
         string TemporaryPath = null;
         try
         {
-            if (!Enum.IsDefined(Theme))
+            if (!Enum.IsDefined(Theme) || PlacesRefreshMonths < 1 || PlacesRefreshMonths > 120
+                || ItemsPerPage < 10 || ItemsPerPage > 100)
                 return false;
             string Json = JsonSerializer.Serialize(this, fJsonOptions);
             string FilePath = GetFilePath();
@@ -105,4 +112,12 @@ public class Settings
     /// The preferred application theme. Classic is used when no preference has been saved.
     /// </summary>
     public AppTheme Theme { get; set; } = AppTheme.Classic;
+    /// <summary>
+    /// The Places refresh interval in calendar months, from 1 to 120. Defaults to 24 months.
+    /// </summary>
+    public int PlacesRefreshMonths { get; set; } = 24;
+    /// <summary>
+    /// The shared page size for paged lists, from 10 to 100. Countries and Big Cities are excluded.
+    /// </summary>
+    public int ItemsPerPage { get; set; } = 100;
 }

@@ -10,18 +10,18 @@
     <Grid x:Name="MainLayout" RowDefinitions="Auto, *, Auto">
 
         <!-- 1. Header / Toolbar -->
-        <Border Grid.Row="0" Classes="Toolbar">
+        <Border Grid.Row="0" Classes="Toolbar MainToolbar">
             <Grid ColumnDefinitions="*,Auto">
             <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                 <TextBlock Text="PInfo" Classes="ToolbarTitle"/>
                 <!-- No events here, buttons have x:Name for code-behind binding -->
-                <Button x:Name="btnTest" Content="Test" Classes="PrimaryButton"/>
+                <Button x:Name="btnTest" Content="Test" Classes="PrimaryButton MainToolbarButton"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4"
                         HorizontalAlignment="Right" VerticalAlignment="Center">
-                <Button x:Name="btnSettings" Content="⚙️" Classes="PrimaryButton ToolbarIcon"
+                <Button x:Name="btnSettings" Content="⚙️" Classes="PrimaryButton ToolbarIcon MainToolbarButton"
                         ToolTip.Tip="Settings" AutomationProperties.Name="Settings"/>
-                <Button x:Name="btnAbout" Content="ℹ️" Classes="PrimaryButton ToolbarIcon"
+                <Button x:Name="btnAbout" Content="ℹ️" Classes="PrimaryButton ToolbarIcon MainToolbarButton"
                         ToolTip.Tip="About" AutomationProperties.Name="About"/>
             </StackPanel>
             </Grid>

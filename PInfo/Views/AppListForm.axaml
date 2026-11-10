@@ -11,7 +11,9 @@
         <StackPanel Grid.Row="1" Spacing="10" Margin="0,0,0,12">
             <TextBox x:Name="edtSearch" PlaceholderText="Search"
                      Classes="SearchBox"/>
-            <TextBlock x:Name="ResultCountText" Classes="BodyText" Margin="4,0"/>
+            <TextBlock x:Name="ResultCountText" Classes="BodyText" Margin="4,0" TextWrapping="Wrap"/>
+            <TextBlock x:Name="PleaseWaitText" Text="Please wait..." FontSize="20" FontWeight="Bold"
+                       Margin="4,0" IsVisible="False"/>
             <ProgressBar x:Name="LoadingProgress" Classes="LoadingBar" IsVisible="False"/>
             <Border x:Name="NoticePanel" IsVisible="False" Classes="NoticePanel">
                 <StackPanel Spacing="10">

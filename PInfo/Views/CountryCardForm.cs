@@ -35,6 +35,10 @@ public class CountryCardForm : AppCardForm
         btnAllCities.Click += AnyClick;
         AddHeaderAction(btnAllCities);
 
+        Button btnPlaces = new() { Content = "Places" };
+        btnPlaces.Click += (Sender, Args) => MainView.Current?.PushForm(new PlaceListForm(Country));
+        AddHeaderAction(btnPlaces);
+
         StackPanel Section = CreateSection("Overview");
         AddField(Section, "Capital", Country.Capital);
         AddField(Section, "Region", Country.Region);

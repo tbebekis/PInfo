@@ -20,7 +20,7 @@ public class CountryListForm : AppListForm
         if (Country == null)
             return null;
 
-        Grid Row = new() { ColumnDefinitions = new ColumnDefinitions("56,*,Auto") };
+        Grid Row = new() { ColumnDefinitions = new ColumnDefinitions("32,*,Auto") };
         TextBlock Flag = new();
         Flag.Bind(TextBlock.TextProperty, new ReflectionBinding(nameof(CountryModel.Flag)));
         Flag.Classes.Add("FlagEmoji");
