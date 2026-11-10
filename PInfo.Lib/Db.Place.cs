@@ -33,7 +33,7 @@ static public partial class Db
         return UpdatedUtc;
     }
     /// <summary>
-    /// Reads a bounded city page and its matching count from one SQLite snapshot.
+    /// Reads a bounded city page and its matching count from one SQLite snapshot, ordered by ASCII display name.
     /// Big cities are selected before searching: at most 100 places with population at least 15,000.
     /// Call off the UI thread. Search matches literal text in primary, ASCII, or alternative names.
     /// </summary>
@@ -54,7 +54,7 @@ static public partial class Db
         ArgumentOutOfRangeException.ThrowIfGreaterThan(PageSize, 100);
         PageSize = BigCities ? 100 : PageSize;
         string Source = "WITH Cities AS (SELECT * FROM Place WHERE CountryCode = @CountryCode AND FeatureClass = 'P'"
-            + (BigCities ? " AND Population >= 15000 ORDER BY Population DESC, Name COLLATE NOCASE, GeoNameId LIMIT 100" : string.Empty)
+            + (BigCities ? " AND Population >= 15000 ORDER BY Population DESC, COALESCE(NULLIF(TRIM(AsciiName), ''), Name) COLLATE NOCASE, GeoNameId LIMIT 100" : string.Empty)
             + ") ";
         string Filter = " WHERE Name LIKE @Search ESCAPE '!' OR AsciiName LIKE @Search ESCAPE '!'"
             + " OR AlternateNames LIKE @Search ESCAPE '!'";
@@ -63,13 +63,14 @@ static public partial class Db
         using DbConnection Connection = Connect();
         using DbTransaction Transaction = Connection.BeginTransaction();
         DbParameter[] Parameters = { Parameter("@CountryCode", CountryCode.Trim().ToUpperInvariant()), Parameter("@Search", Pattern) };
+        Dictionary<string, string> AdministrativeNames = ReadAdministrativeAreas(Connection, Transaction, CountryCode, CancellationToken);
         using DbCommand CountCommand = CreateCommand(Connection, Transaction,
             Source + "SELECT COUNT(*) FROM Cities" + Filter, Parameters);
         int Total = Convert.ToInt32(CountCommand.ExecuteScalar(), CultureInfo.InvariantCulture);
         int CurrentPage = Math.Min(Page, Math.Max(0, (Total - 1) / PageSize));
         using DbCommand Command = CreateCommand(Connection, Transaction,
-            Source + "SELECT GeoNameId, Name, AsciiName, CountryCode, Admin1Code, Latitude, Longitude, Population, Timezone, FeatureCode FROM Cities"
-            + Filter + " ORDER BY Name COLLATE NOCASE, GeoNameId"
+            Source + "SELECT GeoNameId, Name, AsciiName, CountryCode, Admin1Code, Latitude, Longitude, Population, Timezone, FeatureCode, Admin2Code FROM Cities"
+            + Filter + " ORDER BY COALESCE(NULLIF(TRIM(AsciiName), ''), Name) COLLATE NOCASE, GeoNameId"
             + " LIMIT @Limit OFFSET @Offset;",
             new[] { Parameter("@CountryCode", CountryCode.Trim().ToUpperInvariant()), Parameter("@Search", Pattern),
                 Parameter("@Limit", PageSize), Parameter("@Offset", CurrentPage * PageSize) });
@@ -84,6 +85,8 @@ static public partial class Db
                     GeonameId = Reader.GetInt64(0), Name = Reader.GetString(1),
                     AsciiName = Reader.IsDBNull(2) ? string.Empty : Reader.GetString(2),
                     CountryCode = Reader.GetString(3), Admin1Code = Reader.IsDBNull(4) ? string.Empty : Reader.GetString(4),
+                    AdministrativeArea = FormatAdministrativeArea(AdministrativeNames,
+                        Reader.IsDBNull(4) ? string.Empty : Reader.GetString(4), Reader.IsDBNull(10) ? string.Empty : Reader.GetString(10)),
                     Latitude = Reader.GetDouble(5), Longitude = Reader.GetDouble(6), Population = Reader.GetInt64(7),
                     Timezone = Reader.IsDBNull(8) ? string.Empty : Reader.GetString(8), FeatureCode = Reader.GetString(9)
                 });

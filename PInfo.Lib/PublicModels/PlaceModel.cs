@@ -9,6 +9,11 @@ public class PlaceModel
 {
     // ● properties
     /// <summary>
+    /// The resolved administrative area and region for display; not stored or serialized.
+    /// </summary>
+    [JsonIgnore]
+    public string AdministrativeArea { get; set; } = string.Empty;
+    /// <summary>
     /// The unique GeoNames record identifier.
     /// </summary>
     public long GeoNameId { get; set; }

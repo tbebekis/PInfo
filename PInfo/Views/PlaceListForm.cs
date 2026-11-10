@@ -38,8 +38,22 @@ public class PlaceListForm : AppListForm
             return null;
         TextBlock Name = new();
         Name.Classes.Add("ListItemTitle");
-        Name.Bind(TextBlock.TextProperty, new ReflectionBinding(nameof(PlaceModel.Name)));
-        Border Card = new() { Child = Name };
+        Name.Bind(TextBlock.TextProperty, new ReflectionBinding(".")
+        {
+            Converter = new FuncValueConverter<PlaceModel, string>(Item => Item == null ? string.Empty
+                : string.IsNullOrWhiteSpace(Item.AsciiName) ? Item.Name : Item.AsciiName.Trim())
+        });
+        TextBlock Area = new() { FontSize = 12, TextWrapping = TextWrapping.Wrap };
+        Area.Classes.Add("SecondaryText");
+        Area.Bind(TextBlock.TextProperty, new ReflectionBinding("AdministrativeArea"));
+        Area.Bind(TextBlock.IsVisibleProperty, new ReflectionBinding("AdministrativeArea")
+        {
+            Converter = new FuncValueConverter<string, bool>(Value => !string.IsNullOrWhiteSpace(Value))
+        });
+        StackPanel Content = new() { Spacing = 2 };
+        Content.Children.Add(Name);
+        Content.Children.Add(Area);
+        Border Card = new() { Child = Content };
         Card.Classes.Add("ListItem");
         return Card;
     }

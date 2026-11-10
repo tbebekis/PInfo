@@ -45,6 +45,16 @@
                         <TextBlock x:Name="PageSizeSaveStatusText" Classes="SecondaryText" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Weather" Classes="ListItemTitle"/>
+                        <TextBlock Text="Temperature unit. Changes apply immediately to weather views. Default: Celsius."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <ComboBox x:Name="cboTemperatureUnit" Classes="ChoiceBox"
+                                  AutomationProperties.Name="Temperature unit"/>
+                        <TextBlock x:Name="TemperatureSaveStatusText" Classes="SecondaryText" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
                 <Border x:Name="SaveNotice" Classes="NoticePanel" IsVisible="False">
                     <TextBlock Text="Your preference is active for this session but could not be saved. Please try saving it again."
                                Classes="NoticeText"/>

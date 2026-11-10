@@ -3,7 +3,7 @@
 namespace PInfo.Views;
 
 /// <summary>
-/// Allows the user to select and persist the application theme, Places refresh interval, and shared page size.
+/// Allows the user to select and persist the application theme, data preferences, shared page size, and weather temperature unit.
 /// </summary>
 public partial class SettingsForm : AppForm
 {
@@ -19,6 +19,7 @@ public partial class SettingsForm : AppForm
         edtPlacesRefreshMonths.IsEnabled = Enabled;
         btnSaveItemsPerPage.IsEnabled = Enabled;
         edtItemsPerPage.IsEnabled = Enabled;
+        cboTemperatureUnit.IsEnabled = Enabled;
     }
     /// <summary>
     /// Applies the selected theme immediately and saves the preference without blocking the UI.
@@ -113,6 +114,35 @@ public partial class SettingsForm : AppForm
             SetEditingEnabled(true);
         }
     }
+    /// <summary>
+    /// Applies and saves the shared temperature unit without changing cached weather measurements.
+    /// </summary>
+    async void OnTemperatureUnitChanged(object Sender, SelectionChangedEventArgs Args)
+    {
+        if (cboTemperatureUnit.SelectedIndex < 0 || cboTemperatureUnit.SelectedIndex > 1)
+            return;
+        SetEditingEnabled(false);
+        SaveNotice.IsVisible = false;
+        TemperatureSaveStatusText.Text = "Saving preference...";
+        try
+        {
+            Lib.Settings.TemperatureUnit = cboTemperatureUnit.SelectedIndex == 1
+                ? TemperatureUnit.Fahrenheit : TemperatureUnit.Celsius;
+            bool Saved = await Lib.Settings.SaveAsync();
+            TemperatureSaveStatusText.Text = Saved ? "Preference saved" : "Active for this session";
+            SaveNotice.IsVisible = !Saved;
+        }
+        catch (Exception Ex)
+        {
+            ExceptionLog.WriteException("SettingsForm.OnTemperatureUnitChanged", Ex, false);
+            TemperatureSaveStatusText.Text = "The temperature unit could not be saved.";
+            SaveNotice.IsVisible = true;
+        }
+        finally
+        {
+            SetEditingEnabled(true);
+        }
+    }
 
     // ● constructor
     /// <summary>
@@ -128,5 +158,8 @@ public partial class SettingsForm : AppForm
         btnSavePlacesRefresh.Click += OnSavePlacesRefreshClick;
         edtItemsPerPage.Value = Lib.Settings.ItemsPerPage;
         btnSaveItemsPerPage.Click += OnSaveItemsPerPageClick;
+        cboTemperatureUnit.ItemsSource = new[] { "Celsius (°C)", "Fahrenheit (°F)" };
+        cboTemperatureUnit.SelectedIndex = Lib.Settings.TemperatureUnit == TemperatureUnit.Fahrenheit ? 1 : 0;
+        cboTemperatureUnit.SelectionChanged += OnTemperatureUnitChanged;
     }
 }

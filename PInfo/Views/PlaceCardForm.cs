@@ -17,9 +17,10 @@ public class PlaceCardForm : AppCardForm
     {
         ArgumentNullException.ThrowIfNull(Place);
         ArgumentNullException.ThrowIfNull(Category);
-        string AsciiName = string.Equals(Place.Name, Place.AsciiName, StringComparison.Ordinal)
-            ? string.Empty : Place.AsciiName;
-        SetHeader(Place.Name, AsciiName, string.Empty);
+        string DisplayName = string.IsNullOrWhiteSpace(Place.AsciiName) ? Place.Name : Place.AsciiName.Trim();
+        string OriginalName = string.Equals(DisplayName, Place.Name, StringComparison.Ordinal) ? string.Empty : Place.Name;
+        SetHeader(DisplayName, string.Join("\n", new[] { Place.AdministrativeArea, OriginalName }
+            .Where(Value => !string.IsNullOrWhiteSpace(Value))), string.Empty);
         AddBadge(Category.Name);
         AddBadge(Place.CountryCode);
         StackPanel Section = CreateSection("Place details");
@@ -41,6 +42,9 @@ public class PlaceCardForm : AppCardForm
         if (double.IsFinite(Place.Latitude) && double.IsFinite(Place.Longitude)
             && Place.Latitude >= -90 && Place.Latitude <= 90 && Place.Longitude >= -180 && Place.Longitude <= 180)
         {
+            Button Weather = new() { Content = "Weather" };
+            Weather.Click += (Sender, Args) => MainView.Current?.PushForm(new WeatherForm(DisplayName, Place.Latitude, Place.Longitude, Place.Timezone, Place.AdministrativeArea));
+            AddHeaderAction(Weather);
             AddField(Section, "Latitude", Place.Latitude.ToString("0.#####", CultureInfo.CurrentCulture) + "°");
             AddField(Section, "Longitude", Place.Longitude.ToString("0.#####", CultureInfo.CurrentCulture) + "°");
             StackPanel Actions = new();

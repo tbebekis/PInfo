@@ -9,6 +9,11 @@ public class CityModel
 {
     // ● properties
     /// <summary>
+    /// The resolved administrative area and region for display; not stored or serialized.
+    /// </summary>
+    [JsonIgnore]
+    public string AdministrativeArea { get; set; } = string.Empty;
+    /// <summary>
     /// The GeoNames identifier used as the unique city identifier.
     /// </summary>
     [JsonPropertyName("geonameId")]

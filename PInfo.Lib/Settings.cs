@@ -11,7 +11,7 @@ public class Settings
     static readonly JsonSerializerOptions fJsonOptions = new()
     {
         WriteIndented = true,
-        Converters = { new JsonStringEnumConverter<AppTheme>() }
+        Converters = { new JsonStringEnumConverter<AppTheme>(), new JsonStringEnumConverter<TemperatureUnit>() }
     };
     readonly SemaphoreSlim fSaveLock = new(1, 1);
 
@@ -42,6 +42,8 @@ public class Settings
                     Result.PlacesRefreshMonths = 24;
                 if (Result.ItemsPerPage < 10 || Result.ItemsPerPage > 100)
                     Result.ItemsPerPage = 100;
+                if (!Enum.IsDefined(Result.TemperatureUnit))
+                    Result.TemperatureUnit = PInfo.TemperatureUnit.Celsius;
                 return Result;
             }
         }
@@ -70,7 +72,7 @@ public class Settings
         try
         {
             if (!Enum.IsDefined(Theme) || PlacesRefreshMonths < 1 || PlacesRefreshMonths > 120
-                || ItemsPerPage < 10 || ItemsPerPage > 100)
+                || ItemsPerPage < 10 || ItemsPerPage > 100 || !Enum.IsDefined(TemperatureUnit))
                 return false;
             string Json = JsonSerializer.Serialize(this, fJsonOptions);
             string FilePath = GetFilePath();
@@ -120,4 +122,8 @@ public class Settings
     /// The shared page size for paged lists, from 10 to 100. Countries and Big Cities are excluded.
     /// </summary>
     public int ItemsPerPage { get; set; } = 100;
+    /// <summary>
+    /// The display unit shared by all weather views. Defaults to Celsius.
+    /// </summary>
+    public TemperatureUnit TemperatureUnit { get; set; } = PInfo.TemperatureUnit.Celsius;
 }

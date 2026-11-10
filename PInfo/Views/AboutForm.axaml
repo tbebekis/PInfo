@@ -24,9 +24,27 @@
                         <TextBlock Text="Data sources" Classes="ListItemTitle"/>
                         <TextBlock Text="Country information is provided by countries.dev."
                                    Classes="BodyText" TextWrapping="Wrap"/>
-                        <TextBlock Text="https://countries.dev" Classes="SecondaryText" TextWrapping="Wrap"/>
+                        <HyperlinkButton Content="countries.dev" NavigateUri="https://countries.dev/"/>
                         <TextBlock Text="Downloaded country data is refreshed after 30 days when the Countries service is opened. If a refresh fails, previously downloaded data remains available."
                                    Classes="BodyText" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Places" Classes="ListItemTitle"/>
+                        <TextBlock Text="Cities and geographic places are provided by GeoNames under CC BY 4.0. PInfo groups and filters the downloaded place records for offline browsing."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <HyperlinkButton Content="GeoNames" NavigateUri="https://www.geonames.org/"/>
+                        <HyperlinkButton Content="Licence: CC BY 4.0" NavigateUri="https://creativecommons.org/licenses/by/4.0/"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Weather" Classes="ListItemTitle"/>
+                        <TextBlock Text="Weather data is provided by MET Norway under CC BY 4.0. PInfo calculates two-hour and daily summaries from the available forecast intervals. Requests respect provider cache headers and a minimum three-hour refresh interval. Previously downloaded forecasts remain available offline."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <HyperlinkButton Content="MET Norway" NavigateUri="https://api.met.no/"/>
+                        <HyperlinkButton Content="Licence: CC BY 4.0" NavigateUri="https://creativecommons.org/licenses/by/4.0/"/>
                     </StackPanel>
                 </Border>
                 <Border Classes="ListItem">
