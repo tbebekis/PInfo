@@ -60,7 +60,9 @@ public class FavoriteListForm : AppListForm
             fKind == FavoriteKind.Weather ? "Saved locations open weather using the normal cache and refresh rules."
                 : fKind == FavoriteKind.ExchangeRates || fKind == FavoriteKind.Cryptocurrencies
                     ? "Saved asset choices open reference values using the normal cache and refresh rules."
-                    : "Saved details remain available offline. Remove an item with its heart.", "Search favorites by name or region");
+                    : fKind == FavoriteKind.Art
+                        ? "Saved artworks open their details using the normal cache and refresh rules."
+                        : "Saved details remain available offline. Remove an item with its heart.", "Search favorites by name or region");
         int Pages = Math.Max(1, (Items.Count + fPageSize - 1) / fPageSize);
         fPageText.Text = $"Page {fPage + 1} / {Pages}";
         fPrevious.IsEnabled = fPage > 0;

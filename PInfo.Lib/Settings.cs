@@ -133,6 +133,7 @@ public class Settings
             nameof(UniversitiesRefreshDays) => UniversitiesRefreshDays,
             nameof(WorldBankRefreshDays) => WorldBankRefreshDays,
             nameof(HolidaysRefreshDays) => HolidaysRefreshDays,
+            nameof(ArtRefreshDays) => ArtRefreshDays,
             _ => throw new ArgumentException("Unknown refresh preference.", nameof(PropertyName))
         };
     }
@@ -159,6 +160,7 @@ public class Settings
             case nameof(UniversitiesRefreshDays): UniversitiesRefreshDays = Value; break;
             case nameof(WorldBankRefreshDays): WorldBankRefreshDays = Value; break;
             case nameof(HolidaysRefreshDays): HolidaysRefreshDays = Value; break;
+            case nameof(ArtRefreshDays): ArtRefreshDays = Value; break;
         }
     }
 
@@ -179,6 +181,7 @@ public class Settings
             (nameof(PhotonRefreshDays), "Photon location searches", "days", 7, 1, 3650),
             (nameof(BookSearchRefreshDays), "Book searches", "days", 1, 1, 3650),
             (nameof(BookDetailsRefreshDays), "Book details", "days", 7, 1, 3650),
+            (nameof(ArtRefreshDays), "Art - The Met", "days", 30, 1, 3650),
             (nameof(UniversitiesRefreshDays), "Universities", "days", 30, 1, 3650),
             (nameof(WorldBankRefreshDays), "World Bank", "days", 30, 1, 3650),
             (nameof(HolidaysRefreshDays), "Public holidays", "days", 30, 1, 3650),
@@ -247,4 +250,8 @@ public class Settings
     /// The public holidays refresh interval in days, from 1 to 3650. Defaults to 30.
     /// </summary>
     public int HolidaysRefreshDays { get; set; } = 30;
+    /// <summary>
+    /// The Met catalogue and artwork metadata refresh interval in days, from 1 to 3650. Defaults to 30.
+    /// </summary>
+    public int ArtRefreshDays { get; set; } = 30;
 }

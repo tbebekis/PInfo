@@ -9,6 +9,7 @@ public class WeatherForm : AppForm
 {
     // ● private
     readonly string fLocationName;
+    readonly string fAdministrativeArea;
     readonly double fLatitude;
     readonly double fLongitude;
     readonly string fTimezone;
@@ -262,7 +263,7 @@ public class WeatherForm : AppForm
         };
         SunMoon.Classes.Add("PrimaryButton");
         SunMoon.Click += (Sender, Args) => MainView.Current?.PushForm(new SunMoonForm(fLocationName, fLatitude, fLongitude,
-            fTimezone, string.Empty));
+            fTimezone, fAdministrativeArea));
         Grid.SetColumn(SunMoon, 1);
         CurrentRow.Children.Add(SunMoon);
         Summary.Children.Add(CurrentRow);
@@ -494,6 +495,7 @@ public class WeatherForm : AppForm
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(LocationName);
         fLocationName = LocationName;
+        fAdministrativeArea = AdministrativeArea;
         fLatitude = Latitude;
         fLongitude = Longitude;
         fTimezone = Timezone;

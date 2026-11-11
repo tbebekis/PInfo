@@ -110,6 +110,20 @@
                 </Border>
                 <Border Classes="ListItem">
                     <StackPanel Spacing="12">
+                        <TextBlock Text="Art - The Met" Classes="ListItemTitle"/>
+                        <TextBlock Text="Artwork metadata and Open Access images come from The Metropolitan Museum of Art, New York. The museum releases its selected Open Access datasets under CC0, for commercial and noncommercial use. PInfo displays only images explicitly marked public domain; other works may have catalogue information without an image."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <TextBlock Text="No account or API key is required. Downloaded catalogue data and previews are retained for offline use. Catalogue and artwork metadata refresh follows Settings (default: 30 days). Saved catalogue data may be shown when a refresh fails. Favorites retain the artwork identifier and reopen its details through the normal cache."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <HyperlinkButton Content="The Metropolitan Museum of Art" NavigateUri="https://www.metmuseum.org/"/>
+                        <HyperlinkButton Content="Collection API" NavigateUri="https://metmuseum.github.io/"/>
+                        <HyperlinkButton Content="Open Access policy" NavigateUri="https://www.metmuseum.org/policies/image-resources"/>
+                        <HyperlinkButton Content="CC0 1.0" NavigateUri="https://creativecommons.org/publicdomain/zero/1.0/"/>
+                        <HyperlinkButton Content="Terms of use" NavigateUri="https://www.metmuseum.org/policies/terms-and-conditions"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
                         <TextBlock Text="Universities" Classes="ListItemTitle"/>
                         <TextBlock Text="University names, countries, regions, domains and website links come from Hipo's University Domains and Names Data List, under the MIT licence. Copyright (c) 2014-2025 Hipo. The community-maintained catalogue may be incomplete or outdated."
                                    Classes="BodyText" TextWrapping="Wrap"/>

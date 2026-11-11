@@ -22,7 +22,7 @@ public class SunMoonForm : AppCardForm
     bool fLoaded;
 
     /// <summary>
-    /// Formats an independently nullable event, retaining its calendar date and the correct offset at that instant.
+    /// Formats an independently nullable event, retaining relative calendar-day markers and the correct offset at that instant.
     /// </summary>
     string EventTime(JsonElement Properties, string Name)
     {
@@ -214,7 +214,8 @@ public class SunMoonForm : AppCardForm
         fZone = Known ? Zone : TimeZoneInfo.Utc;
         fZoneNotice = Known ? "Times shown in " + fZone.Id + "."
             : "The location timezone is unknown. Times use UTC; the requested solar-day date may differ from the local calendar date.";
-        SetHeader(Name + " — Sun & Moon", Context, "☀️");
+        SetHeader(Name + " — Sun & Moon", Context, "☀︎");
+        this.FindControl<TextBlock>("HeaderIconText").Classes.Add("WeatherSun");
         StackPanel Controls = CreateSection("Date");
         DateTimeOffset Today = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, fZone);
         fDate.SelectedDate = Today.Date;

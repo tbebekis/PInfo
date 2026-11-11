@@ -60,7 +60,8 @@ static public class FavoriteService
         {
             FavoriteKind.Country => "Countries", FavoriteKind.City => "Cities", FavoriteKind.Place => "Places",
             FavoriteKind.Weather => "Weather", FavoriteKind.ExchangeRates => "Exchange Rates",
-            FavoriteKind.Cryptocurrencies => "Cryptocurrencies", FavoriteKind.WorldClock => "World Clock", _ => throw new ArgumentException("Unknown favorite category.", nameof(Kind))
+            FavoriteKind.Cryptocurrencies => "Cryptocurrencies", FavoriteKind.WorldClock => "World Clock",
+            FavoriteKind.Art => "Art - The Met", _ => throw new ArgumentException("Unknown favorite category.", nameof(Kind))
         };
     }
     /// <summary>
@@ -143,6 +144,15 @@ static public class FavoriteService
         return Create(FavoriteKind.WorldClock, ZoneId, WorldClockService.GetTitle(ZoneId), "Time zone", new FavoriteSnapshot());
     }
     /// <summary>
+    /// Saves a Met artwork identifier and display label without changing the snapshot contract.
+    /// </summary>
+    static public FavoriteModel Art(int Id, string Name)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(Id);
+        return Create(FavoriteKind.Art, Id.ToString(CultureInfo.InvariantCulture), Name,
+            "The Metropolitan Museum of Art", new FavoriteSnapshot());
+    }
+    /// <summary>
     /// Validates a stored snapshot and restores administrative display context excluded from imported models' JSON.
     /// </summary>
     static public FavoriteSnapshot ReadSnapshot(FavoriteModel Favorite)
@@ -165,6 +175,8 @@ static public class FavoriteService
                 && Snapshot.BaseCurrency.Code == Favorite.TargetKey
                 && IsAssetCode(Snapshot.BaseCurrency.Code, Favorite.Kind == FavoriteKind.Cryptocurrencies),
             FavoriteKind.WorldClock => !string.IsNullOrWhiteSpace(Favorite.TargetKey),
+            FavoriteKind.Art => int.TryParse(Favorite.TargetKey, NumberStyles.None, CultureInfo.InvariantCulture, out int Id)
+                && Id > 0 && Id.ToString(CultureInfo.InvariantCulture) == Favorite.TargetKey,
             _ => false
         };
         if (!Valid)

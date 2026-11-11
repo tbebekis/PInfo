@@ -34,5 +34,9 @@ public enum FavoriteKind
     /// <summary>
     /// A live clock identified by its system timezone identifier.
     /// </summary>
-    WorldClock = 6
+    WorldClock = 6,
+    /// <summary>
+    /// A Met artwork identified by its museum catalogue ID.
+    /// </summary>
+    Art = 7
 }

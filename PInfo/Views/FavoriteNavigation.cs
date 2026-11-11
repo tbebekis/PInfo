@@ -40,6 +40,9 @@ static class FavoriteNavigation
                 ExchangeRateService Service = new(Cryptocurrencies: Favorite.Kind == FavoriteKind.Cryptocurrencies);
                 Form = new ExchangeRateListForm(Service, Snapshot.BaseCurrency, Array.Empty<CurrencyDetail>());
                 break;
+            case FavoriteKind.Art:
+                Form = new MetDetailForm(new MetService(), int.Parse(Favorite.TargetKey, CultureInfo.InvariantCulture), Favorite.Name);
+                break;
             case FavoriteKind.WorldClock:
                 Form = new WorldClockForm(Favorite.TargetKey);
                 break;

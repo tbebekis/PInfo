@@ -19,10 +19,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="Models:PublicServiceItem">
                                 <Button Click="AnyClick" Classes="ListItem">
-                                    <Grid ColumnDefinitions="*,Auto">
-                                        <TextBlock Text="{Binding Service.Name}" Classes="ListItemTitle"/>
-                                        <TextBlock Grid.Column="1" Text="Open" Classes="ListItemText" Margin="16,0,0,0"/>
-                                    </Grid>
+                                    <TextBlock Text="{Binding Service.Name}" Classes="ListItemTitle"/>
                                 </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
