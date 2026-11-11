@@ -43,6 +43,14 @@
                         <TextBlock Text="Weather" Classes="ListItemTitle"/>
                         <TextBlock Text="Weather data is provided by MET Norway under CC BY 4.0. PInfo calculates two-hour and daily summaries from the available forecast intervals. Requests respect provider cache headers and a minimum three-hour refresh interval. Previously downloaded forecasts remain available offline."
                                    Classes="BodyText" TextWrapping="Wrap"/>
+                        <TextBlock Text="Weather location searches use Photon, hosted by komoot, with OpenStreetMap data. No account or API key is required. Searches are submitted explicitly and cached for seven days. The public Photon server permits reasonable use, may throttle heavy traffic and does not guarantee availability. Photon results do not supply a timezone; these forecasts show UTC times with an explanatory notice."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <TextBlock Text="Geocoding data: © OpenStreetMap contributors, available under the Open Database License (ODbL). Photon software is licensed under Apache 2.0."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <HyperlinkButton Content="Photon / komoot" NavigateUri="https://photon.komoot.io/"/>
+                        <HyperlinkButton Content="Photon public-server usage" NavigateUri="https://github.com/komoot/photon#demo-server"/>
+                        <HyperlinkButton Content="OpenStreetMap attribution and data licence" NavigateUri="https://www.openstreetmap.org/copyright"/>
+                        <HyperlinkButton Content="ODbL 1.0" NavigateUri="https://opendatacommons.org/licenses/odbl/1-0/"/>
                         <HyperlinkButton Content="MET Norway" NavigateUri="https://api.met.no/"/>
                         <HyperlinkButton Content="Licence: CC BY 4.0" NavigateUri="https://creativecommons.org/licenses/by/4.0/"/>
                     </StackPanel>

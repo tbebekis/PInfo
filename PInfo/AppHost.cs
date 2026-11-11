@@ -17,6 +17,8 @@ static public class AppHost
     {
         List<PublicServiceItem> Items = new();
         Items.Add(new PublicServiceItem(Lib.Countries, () => new CountryListForm()));
+        PhotonService Weather = new();
+        Items.Add(new PublicServiceItem(Weather, () => new WeatherSearchForm(Weather)));
         ExchangeRateService ExchangeRates = new();
         Items.Add(new PublicServiceItem(ExchangeRates, () => new ExchangeRateListForm(ExchangeRates)));
         ExchangeRateService Cryptocurrencies = new(Cryptocurrencies: true);
