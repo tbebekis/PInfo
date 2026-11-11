@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="LICENSE" />
+  </Folder>
   <Project Path="PInfo.Android/PInfo.Android.csproj">
     <Deploy />
   </Project>

@@ -17,6 +17,9 @@
                                    Classes="ListItemTitle"/>
                         <TextBlock Text="A free, open-source Android application built with Avalonia UI. Explore information from public services, with downloaded country data available offline."
                                    Classes="BodyText" TextWrapping="Wrap"/>
+                        <TextBlock Text="Created by Theo Bebekis" Classes="ListItemTitle"/>
+                        <TextBlock Text="Copyright (c) 2026 Theo Bebekis. See License."
+                                   Classes="SecondaryText" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
                 <Border Classes="ListItem">
@@ -153,13 +156,6 @@
                         <HyperlinkButton Content="Vacanza holidays" NavigateUri="https://github.com/vacanza/holidays"/>
                         <HyperlinkButton Content="Published holiday calendars" NavigateUri="https://holidays.readthedocs.io/en/latest/downloads/"/>
                         <HyperlinkButton Content="Licence: MIT" NavigateUri="https://github.com/vacanza/holidays/blob/dev/LICENSE"/>
-                    </StackPanel>
-                </Border>
-                <Border Classes="ListItem">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="Created by Theo Bebekis" Classes="ListItemTitle"/>
-                        <TextBlock Text="Copyright (c) 2026 Theo Bebekis. See License."
-                                   Classes="SecondaryText" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

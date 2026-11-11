@@ -4,9 +4,9 @@
         <TargetFramework>net10.0-android</TargetFramework>
         <SupportedOSPlatformVersion>23</SupportedOSPlatformVersion>
         <Nullable>enable</Nullable>
-        <ApplicationId>com.CompanyName.PInfo</ApplicationId>
+        <ApplicationId>com.tbebekis.pinfo</ApplicationId>
         <ApplicationVersion>1</ApplicationVersion>
-        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+        <ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
         <AndroidPackageFormat>apk</AndroidPackageFormat>
         <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
     </PropertyGroup>
