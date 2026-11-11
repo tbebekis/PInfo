@@ -3,63 +3,71 @@
                xmlns:Views="using:PInfo.Views"
                x:Class="PInfo.Views.SettingsForm"
                Classes="FormBackground">
-    <Grid RowDefinitions="Auto,*" Margin="16">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="16">
         <StackPanel Classes="FormHeader">
             <TextBlock Text="Settings" Classes="FormTitle"/>
             <TextBlock Text="Make PInfo feel like home" Classes="BodyText"/>
         </StackPanel>
-        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Spacing="16">
-                <Border Classes="ListItem">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="Appearance" Classes="ListItemTitle"/>
-                        <TextBlock Text="Choose your application theme. Changes apply immediately."
-                                   Classes="BodyText" TextWrapping="Wrap"/>
-                        <ComboBox x:Name="cboTheme" Classes="ChoiceBox"
-                                  AutomationProperties.Name="Application theme"/>
-                        <TextBlock x:Name="SaveStatusText" Classes="SecondaryText" TextWrapping="Wrap"/>
+        <TabControl Grid.Row="1" Classes="HomeTabs">
+            <TabItem Header="General">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="16">
+                        <Border Classes="ListItem">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Appearance" Classes="ListItemTitle"/>
+                                <TextBlock Text="Choose your application theme. Changes apply immediately."
+                                           Classes="BodyText" TextWrapping="Wrap"/>
+                                <ComboBox x:Name="cboTheme" Classes="ChoiceBox"
+                                          AutomationProperties.Name="Application theme"/>
+                                <TextBlock x:Name="SaveStatusText" Classes="SecondaryText" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Classes="ListItem">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Lists" Classes="ListItemTitle"/>
+                                <TextBlock Text="Items per page for all paged lists. Countries and Big Cities are excluded. Default: 100."
+                                           Classes="BodyText" TextWrapping="Wrap"/>
+                                <NumericUpDown x:Name="edtItemsPerPage" Minimum="10" Maximum="100"
+                                               Increment="10" FormatString="0" AllowSpin="True"
+                                               AutomationProperties.Name="Items per page"/>
+                                <Button x:Name="btnSaveItemsPerPage" Content="Save page size" HorizontalAlignment="Left"/>
+                                <TextBlock x:Name="PageSizeSaveStatusText" Classes="SecondaryText" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Classes="ListItem">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Weather" Classes="ListItemTitle"/>
+                                <TextBlock Text="Temperature unit. Changes apply immediately to weather views. Default: Celsius."
+                                           Classes="BodyText" TextWrapping="Wrap"/>
+                                <ComboBox x:Name="cboTemperatureUnit" Classes="ChoiceBox"
+                                          AutomationProperties.Name="Temperature unit"/>
+                                <TextBlock x:Name="TemperatureSaveStatusText" Classes="SecondaryText" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
                     </StackPanel>
-                </Border>
-                <Border Classes="ListItem">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="Places data" Classes="ListItemTitle"/>
-                        <TextBlock Text="Refresh downloaded places when opened after this many months. Default: 24 months."
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Refresh intervals">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Spacing="12" Margin="0,12,0,0">
+                        <TextBlock Text="Data is refreshed on its next use after the interval expires. No background downloads are scheduled."
                                    Classes="BodyText" TextWrapping="Wrap"/>
-                        <TextBlock Text="Refresh interval (months)" Classes="BodyText"/>
-                        <NumericUpDown x:Name="edtPlacesRefreshMonths" Minimum="1" Maximum="120"
-                                       Increment="1" FormatString="0" AllowSpin="True"
-                                       AutomationProperties.Name="Places refresh interval in months"/>
-                        <Button x:Name="btnSavePlacesRefresh" Content="Save interval" HorizontalAlignment="Left"/>
-                        <TextBlock x:Name="PlacesSaveStatusText" Classes="SecondaryText" TextWrapping="Wrap"/>
+                        <StackPanel x:Name="RefreshItemsPanel" Spacing="8"/>
+                        <TextBlock Text="Weather always respects provider expiry/cooldown rules and a minimum three-hour interval. World Clock uses the device clock and has no download interval."
+                                   Classes="SecondaryText" TextWrapping="Wrap"/>
+                        <WrapPanel>
+                            <Button x:Name="btnSaveRefresh" Content="Save" Classes="PrimaryButton" Margin="0,0,8,0"/>
+                            <Button x:Name="btnDefaultRefresh" Content="Restore defaults"/>
+                        </WrapPanel>
+                        <TextBlock x:Name="RefreshSaveStatusText" Classes="SecondaryText" TextWrapping="Wrap"/>
                     </StackPanel>
-                </Border>
-                <Border Classes="ListItem">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="Lists" Classes="ListItemTitle"/>
-                        <TextBlock Text="Items per page for all paged lists. Countries and Big Cities are excluded. Default: 100."
-                                   Classes="BodyText" TextWrapping="Wrap"/>
-                        <NumericUpDown x:Name="edtItemsPerPage" Minimum="10" Maximum="100"
-                                       Increment="10" FormatString="0" AllowSpin="True"
-                                       AutomationProperties.Name="Items per page"/>
-                        <Button x:Name="btnSaveItemsPerPage" Content="Save page size" HorizontalAlignment="Left"/>
-                        <TextBlock x:Name="PageSizeSaveStatusText" Classes="SecondaryText" TextWrapping="Wrap"/>
-                    </StackPanel>
-                </Border>
-                <Border Classes="ListItem">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="Weather" Classes="ListItemTitle"/>
-                        <TextBlock Text="Temperature unit. Changes apply immediately to weather views. Default: Celsius."
-                                   Classes="BodyText" TextWrapping="Wrap"/>
-                        <ComboBox x:Name="cboTemperatureUnit" Classes="ChoiceBox"
-                                  AutomationProperties.Name="Temperature unit"/>
-                        <TextBlock x:Name="TemperatureSaveStatusText" Classes="SecondaryText" TextWrapping="Wrap"/>
-                    </StackPanel>
-                </Border>
-                <Border x:Name="SaveNotice" Classes="NoticePanel" IsVisible="False">
-                    <TextBlock Text="Your preference is active for this session but could not be saved. Please try saving it again."
-                               Classes="NoticeText"/>
-                </Border>
-            </StackPanel>
-        </ScrollViewer>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+        <Border Grid.Row="2" x:Name="SaveNotice" Classes="NoticePanel" IsVisible="False">
+            <TextBlock Text="Your preference is active for this session but could not be saved. Please try saving it again."
+                       Classes="NoticeText"/>
+        </Border>
     </Grid>
 </Views:AppForm>

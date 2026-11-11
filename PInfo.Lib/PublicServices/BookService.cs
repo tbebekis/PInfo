@@ -69,7 +69,7 @@ public class BookService : PublicService
                     Cached = await File.ReadAllTextAsync(FilePath, CancellationToken).ConfigureAwait(false);
                     Validate(Cached, WorkKey);
                     DateTime Written = File.GetLastWriteTimeUtc(FilePath);
-                    if (Written <= DateTime.UtcNow && Written > DateTime.UtcNow.AddDays(WorkKey == null ? -1 : -7))
+                    if (Written <= DateTime.UtcNow && Written > DateTime.UtcNow.AddDays(-(WorkKey == null ? Lib.Settings.BookSearchRefreshDays : Lib.Settings.BookDetailsRefreshDays)))
                     {
                         Result.ResponseJsonText = Cached;
                         Result.ResultStatus = ApiClientResultStatus.Success;

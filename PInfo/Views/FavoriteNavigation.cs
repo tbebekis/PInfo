@@ -40,6 +40,9 @@ static class FavoriteNavigation
                 ExchangeRateService Service = new(Cryptocurrencies: Favorite.Kind == FavoriteKind.Cryptocurrencies);
                 Form = new ExchangeRateListForm(Service, Snapshot.BaseCurrency, Array.Empty<CurrencyDetail>());
                 break;
+            case FavoriteKind.WorldClock:
+                Form = new WorldClockForm(Favorite.TargetKey);
+                break;
             default:
                 throw new InvalidOperationException("Unsupported favorite destination.");
         }

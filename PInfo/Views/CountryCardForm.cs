@@ -50,6 +50,10 @@ public class CountryCardForm : AppCardForm
         Wikipedia.Click += (Sender, Args) => MainView.Current?.PushForm(new WikipediaForm(Country.Name, Country.Region));
         AddHeaderAction(Wikipedia);
 
+        Button Holidays = new() { Content = "📅 Public Holidays" };
+        Holidays.Click += (Sender, Args) => MainView.Current?.PushForm(new HolidayListForm(Country));
+        AddHeaderAction(Holidays);
+
         Button WorldBank = new() { Content = "World Bank" };
         WorldBank.Click += (Sender, Args) => MainView.Current?.PushForm(new WorldBankListForm(Country));
         AddHeaderAction(WorldBank);

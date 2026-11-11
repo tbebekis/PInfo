@@ -25,7 +25,7 @@
                         <TextBlock Text="Country information is provided by countries.dev."
                                    Classes="BodyText" TextWrapping="Wrap"/>
                         <HyperlinkButton Content="countries.dev" NavigateUri="https://countries.dev/"/>
-                        <TextBlock Text="Downloaded country data is refreshed after 30 days when the Countries service is opened. If a refresh fails, previously downloaded data remains available."
+                        <TextBlock Text="Downloaded country data is refreshed on use after the interval selected in Settings (default: 30 days). If a refresh fails, previously downloaded data remains available."
                                    Classes="BodyText" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
@@ -41,9 +41,9 @@
                 <Border Classes="ListItem">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Weather" Classes="ListItemTitle"/>
-                        <TextBlock Text="Weather data is provided by MET Norway under CC BY 4.0. PInfo calculates two-hour and daily summaries from the available forecast intervals. Requests respect provider cache headers and a minimum three-hour refresh interval. Previously downloaded forecasts remain available offline."
+                        <TextBlock Text="Weather data is provided by MET Norway under CC BY 4.0. PInfo calculates two-hour and daily summaries from the available forecast intervals. Requests respect provider cache headers and a minimum three-hour refresh interval. Settings can select a longer interval. Previously downloaded forecasts remain available offline."
                                    Classes="BodyText" TextWrapping="Wrap"/>
-                        <TextBlock Text="Weather location searches use Photon, hosted by komoot, with OpenStreetMap data. No account or API key is required. Searches are submitted explicitly and cached for seven days. The public Photon server permits reasonable use, may throttle heavy traffic and does not guarantee availability. Photon results do not supply a timezone; these forecasts show UTC times with an explanatory notice."
+                        <TextBlock Text="Weather location searches use Photon, hosted by komoot, with OpenStreetMap data. No account or API key is required. Searches are submitted explicitly and cached according to Settings (default: seven days). The public Photon server permits reasonable use, may throttle heavy traffic and does not guarantee availability. Photon results do not supply a timezone; these forecasts show UTC times with an explanatory notice."
                                    Classes="BodyText" TextWrapping="Wrap"/>
                         <TextBlock Text="Geocoding data: © OpenStreetMap contributors, available under the Open Database License (ODbL). Photon software is licensed under Apache 2.0."
                                    Classes="BodyText" TextWrapping="Wrap"/>
@@ -51,6 +51,9 @@
                         <HyperlinkButton Content="Photon public-server usage" NavigateUri="https://github.com/komoot/photon#demo-server"/>
                         <HyperlinkButton Content="OpenStreetMap attribution and data licence" NavigateUri="https://www.openstreetmap.org/copyright"/>
                         <HyperlinkButton Content="ODbL 1.0" NavigateUri="https://opendatacommons.org/licenses/odbl/1-0/"/>
+                        <TextBlock Text="Sun &amp; Moon uses MET Norway Sunrise 3.0, also under CC BY 4.0. Sun and Moon events are requested separately for the selected coordinates, date and known timezone offset. Provider intervals are mean solar days, so events may occur on adjacent calendar dates. Unavailable events are shown explicitly. Cached data follows the Weather / Sun &amp; Moon interval in Settings and provider expiry rules. Locations without a known timezone use UTC with a notice."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <HyperlinkButton Content="MET Norway Sunrise 3.0" NavigateUri="https://api.met.no/weatherapi/sunrise/3.0/documentation"/>
                         <HyperlinkButton Content="MET Norway" NavigateUri="https://api.met.no/"/>
                         <HyperlinkButton Content="Licence: CC BY 4.0" NavigateUri="https://creativecommons.org/licenses/by/4.0/"/>
                     </StackPanel>
@@ -58,7 +61,7 @@
                 <Border Classes="ListItem">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Wikipedia" Classes="ListItemTitle"/>
-                        <TextBlock Text="Article search results and introductory excerpts come from English Wikipedia. Text is credited to Wikipedia contributors under CC BY-SA 4.0; each article view links to the source, contributor history and licence. Downloaded responses are reused for seven days and retained as an offline fallback."
+                        <TextBlock Text="Article search results and introductory excerpts come from English Wikipedia. Text is credited to Wikipedia contributors under CC BY-SA 4.0; each article view links to the source, contributor history and licence. Downloaded responses follow the refresh interval in Settings (default: seven days) and retained as an offline fallback."
                                    Classes="BodyText" TextWrapping="Wrap"/>
                         <HyperlinkButton Content="English Wikipedia" NavigateUri="https://en.wikipedia.org/"/>
                         <HyperlinkButton Content="Licence: CC BY-SA 4.0" NavigateUri="https://creativecommons.org/licenses/by-sa/4.0/"/>
@@ -67,7 +70,7 @@
                 <Border Classes="ListItem">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Exchange Rates" Classes="ListItemTitle"/>
-                        <TextBlock Text="Currency information and blended reference rates are provided by Frankfurter, using central-bank and other official data sources. These are reference rates rather than live trading quotes or bank conversion offers. Each rate displays its observation date. The currency catalogue is reused for seven days and rates for three hours, with older saved data available if a refresh fails."
+                        <TextBlock Text="Currency information and blended reference rates are provided by Frankfurter, using central-bank and other official data sources. These are reference rates rather than live trading quotes or bank conversion offers. Each rate displays its observation date. Catalogue and rate cache intervals are configurable in Settings (defaults: seven days and three hours), with older saved data available if a refresh fails."
                                    Classes="BodyText" TextWrapping="Wrap"/>
                         <HyperlinkButton Content="Frankfurter" NavigateUri="https://frankfurter.dev/"/>
                     </StackPanel>
@@ -75,7 +78,7 @@
                 <Border Classes="ListItem">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Cryptocurrencies" Classes="ListItemTitle"/>
-                        <TextBlock Text="Cryptocurrency information and daily blended reference prices are provided by Frankfurter. Coverage is limited to assets supported by its sources. Prices are shown per one cryptocurrency unit in available fiat currencies, with individual observation dates. These are reference prices, not live market quotes. The catalogue is reused for seven days and prices for three hours, with saved-data fallback if a refresh fails."
+                        <TextBlock Text="Cryptocurrency information and daily blended reference prices are provided by Frankfurter. Coverage is limited to assets supported by its sources. Prices are shown per one cryptocurrency unit in available fiat currencies, with individual observation dates. These are reference prices, not live market quotes. Catalogue and price cache intervals are configurable in Settings (defaults: seven days and three hours), with saved-data fallback if a refresh fails."
                                    Classes="BodyText" TextWrapping="Wrap"/>
                         <HyperlinkButton Content="Frankfurter" NavigateUri="https://frankfurter.dev/"/>
                     </StackPanel>
@@ -83,7 +86,7 @@
                 <Border Classes="ListItem">
                     <StackPanel Spacing="12">
                         <TextBlock Text="World Bank" Classes="ListItemTitle"/>
-                        <TextBlock Text="Annual country indicators come from the World Bank's World Development Indicators database. Population, GDP per capita in current US dollars, consumer-price inflation, modeled ILO unemployment, life expectancy, real GDP growth, Internet use, current health expenditure and forest area may have different latest observation years. Graphs connect reported annual observations and leave missing years disconnected; no intermediate measurements are invented. Each indicator links to its sources and methodology. Downloaded data is reused for 30 days and retained if a refresh fails."
+                        <TextBlock Text="Annual country indicators come from the World Bank's World Development Indicators database. Population, GDP per capita in current US dollars, consumer-price inflation, modeled ILO unemployment, life expectancy, real GDP growth, Internet use, current health expenditure and forest area may have different latest observation years. Graphs connect reported annual observations and leave missing years disconnected; no intermediate measurements are invented. Each indicator links to its sources and methodology. Downloaded data follows the refresh interval in Settings (default: 30 days) and retained if a refresh fails."
                                    Classes="BodyText" TextWrapping="Wrap"/>
                         <TextBlock Text="The same country view includes intentional homicides per 100,000 people (UNODC via WDI) and four Worldwide Governance Indicators: Voice and Accountability, Control of Corruption, Rule of Law and Political Stability. WGI uses official absolute governance scores from 0 to 100, with higher values indicating better governance; these are perception-based composites with uncertainty, not percentages or global ranks. Homicide rates do not represent overall crime. WDI and WGI keep separate source update dates and offline caches."
                                    Classes="BodyText" TextWrapping="Wrap"/>
@@ -96,7 +99,7 @@
                 <Border Classes="ListItem">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Books" Classes="ListItemTitle"/>
-                        <TextBlock Text="Book searches, work descriptions and catalogue information come from Open Library, an Internet Archive initiative. Results describe works; individual editions may have different languages, publishers and ISBNs. Searches are cached for one day and work details for seven days, with saved-data fallback if a refresh fails."
+                        <TextBlock Text="Book searches, work descriptions and catalogue information come from Open Library, an Internet Archive initiative. Results describe works; individual editions may have different languages, publishers and ISBNs. Search and work-detail cache intervals are configurable in Settings (defaults: one day and seven days), with saved-data fallback if a refresh fails."
                                    Classes="BodyText" TextWrapping="Wrap"/>
                         <TextBlock Text="Internet Archive asserts no new copyright over the database; existing rights may apply to contributions. See the source licensing statement and API usage guidelines."
                                    Classes="BodyText" TextWrapping="Wrap"/>
@@ -110,10 +113,32 @@
                         <TextBlock Text="Universities" Classes="ListItemTitle"/>
                         <TextBlock Text="University names, countries, regions, domains and website links come from Hipo's University Domains and Names Data List, under the MIT licence. Copyright (c) 2014-2025 Hipo. The community-maintained catalogue may be incomplete or outdated."
                                    Classes="BodyText" TextWrapping="Wrap"/>
-                        <TextBlock Text="PInfo downloads the official catalogue from GitHub over HTTPS and searches it locally. Downloads are reused for 30 days, with saved-data fallback if a refresh fails. University website links open in your browser."
+                        <TextBlock Text="PInfo downloads the official catalogue from GitHub over HTTPS and searches it locally. Downloads follow the refresh interval in Settings (default: 30 days), with saved-data fallback if a refresh fails. University website links open in your browser."
                                    Classes="BodyText" TextWrapping="Wrap"/>
                         <HyperlinkButton Content="Hipo university catalogue" NavigateUri="https://github.com/Hipo/university-domains-list"/>
                         <HyperlinkButton Content="Licence: MIT" NavigateUri="https://github.com/Hipo/university-domains-list/blob/master/LICENSE.txt"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="World Clock" Classes="ListItemTitle"/>
+                        <TextBlock Text="World Clock uses the device clock and operating-system timezone rules through .NET. It works offline and does not call an external service. Current UTC offsets and daylight saving time are calculated for the same instant. Accuracy depends on the device clock and updated system timezone data. Favorites store timezone identifiers, not clock readings."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <TextBlock Text="Timezone country titles use bundled public-domain country and location tables from the IANA Time Zone Database. These display labels do not change timezone identifiers or clock rules."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <HyperlinkButton Content="IANA Time Zone Database" NavigateUri="https://www.iana.org/time-zones"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Public Holidays" Classes="ListItemTitle"/>
+                        <TextBlock Text="Country public calendars come from the Vacanza holidays project, distributed under the MIT licence. PInfo downloads the selected country's published calendar, shows available years and retains it offline. Regional calendars are not included. These are precomputed entries, so recent government announcements or future changes may not yet be reflected."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <TextBlock Text="Calendar and supported-country catalogue refresh intervals follow Settings (default: 30 days). Previously downloaded data remains available when a refresh fails. Copyright: Vacanza Team and contributors; dr-prodigy (2017–2023); ryanss (2014–2017)."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <HyperlinkButton Content="Vacanza holidays" NavigateUri="https://github.com/vacanza/holidays"/>
+                        <HyperlinkButton Content="Published holiday calendars" NavigateUri="https://holidays.readthedocs.io/en/latest/downloads/"/>
+                        <HyperlinkButton Content="Licence: MIT" NavigateUri="https://github.com/vacanza/holidays/blob/dev/LICENSE"/>
                     </StackPanel>
                 </Border>
                 <Border Classes="ListItem">

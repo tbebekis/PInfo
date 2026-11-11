@@ -8,6 +8,8 @@ namespace PInfo.Views;
 public partial class SettingsForm : AppForm
 {
     // ● private
+    readonly Dictionary<string, NumericUpDown> fRefreshEditors = new();
+
     /// <summary>
     /// Prevents simultaneous preference edits while a settings snapshot is being saved.
     /// </summary>
@@ -15,8 +17,10 @@ public partial class SettingsForm : AppForm
     void SetEditingEnabled(bool Enabled)
     {
         cboTheme.IsEnabled = Enabled;
-        btnSavePlacesRefresh.IsEnabled = Enabled;
-        edtPlacesRefreshMonths.IsEnabled = Enabled;
+        btnSaveRefresh.IsEnabled = Enabled;
+        btnDefaultRefresh.IsEnabled = Enabled;
+        foreach (NumericUpDown Editor in fRefreshEditors.Values)
+            Editor.IsEnabled = Enabled;
         btnSaveItemsPerPage.IsEnabled = Enabled;
         edtItemsPerPage.IsEnabled = Enabled;
         cboTemperatureUnit.IsEnabled = Enabled;
@@ -51,36 +55,76 @@ public partial class SettingsForm : AppForm
         }
     }
     /// <summary>
-    /// Validates and saves the Places refresh interval without downloading or deleting existing data.
+    /// Builds all refresh controls from the same bounds and defaults used by settings validation.
     /// </summary>
-    async void OnSavePlacesRefreshClick(object Sender, RoutedEventArgs Args)
+    void CreateRefreshEditors()
     {
-        decimal Months = edtPlacesRefreshMonths.Value.GetValueOrDefault();
-        if (Months < 1 || Months > 120 || Months != decimal.Truncate(Months))
+        foreach (var Option in PInfo.Settings.RefreshIntervals)
         {
-            PlacesSaveStatusText.Text = "Enter a whole number of months from 1 to 120.";
-            return;
+            TextBlock Label = new() { Text = Option.Caption + " (" + Option.Unit + ")" };
+            Label.Classes.Add("ListItemTitle");
+            NumericUpDown Editor = new()
+            {
+                Minimum = Option.Minimum, Maximum = Option.Maximum, Increment = 1, FormatString = "0",
+                Value = Lib.Settings.GetRefreshInterval(Option.PropertyName), AllowSpin = true
+            };
+            Avalonia.Automation.AutomationProperties.SetName(Editor, Option.Caption + " refresh interval in " + Option.Unit);
+            StackPanel Body = new() { Spacing = 4 };
+            Body.Children.Add(Label);
+            Body.Children.Add(Editor);
+            Body.Children.Add(new TextBlock { Text = $"Default: {Option.DefaultValue} {Option.Unit}", Classes = { "SecondaryText" } });
+            Border Card = new() { Child = Body };
+            Card.Classes.Add("ListItem");
+            RefreshItemsPanel.Children.Add(Card);
+            fRefreshEditors.Add(Option.PropertyName, Editor);
+        }
+    }
+    /// <summary>
+    /// Saves all refresh intervals together; failed persistence leaves the choices active for this session.
+    /// </summary>
+    async void OnSaveRefreshClick(object Sender, RoutedEventArgs Args)
+    {
+        Dictionary<string, int> Values = new();
+        foreach (var Option in PInfo.Settings.RefreshIntervals)
+        {
+            decimal Value = fRefreshEditors[Option.PropertyName].Value.GetValueOrDefault();
+            if (Value < Option.Minimum || Value > Option.Maximum || Value != decimal.Truncate(Value))
+            {
+                RefreshSaveStatusText.Text = $"{Option.Caption}: enter a whole number from {Option.Minimum} to {Option.Maximum}.";
+                return;
+            }
+            Values.Add(Option.PropertyName, (int)Value);
         }
         SetEditingEnabled(false);
         SaveNotice.IsVisible = false;
-        PlacesSaveStatusText.Text = "Saving preference...";
+        RefreshSaveStatusText.Text = "Saving intervals...";
         try
         {
-            Lib.Settings.PlacesRefreshMonths = (int)Months;
+            foreach (var Value in Values)
+                Lib.Settings.SetRefreshInterval(Value.Key, Value.Value);
             bool Saved = await Lib.Settings.SaveAsync();
-            PlacesSaveStatusText.Text = Saved ? "Preference saved" : "Active for this session";
+            RefreshSaveStatusText.Text = Saved ? "Intervals saved" : "Active for this session";
             SaveNotice.IsVisible = !Saved;
         }
         catch (Exception Ex)
         {
-            ExceptionLog.WriteException("SettingsForm.OnSavePlacesRefreshClick", Ex, false);
-            PlacesSaveStatusText.Text = "The refresh interval could not be saved.";
+            ExceptionLog.WriteException("SettingsForm.SaveRefresh", Ex, false);
+            RefreshSaveStatusText.Text = "The refresh intervals could not be saved.";
             SaveNotice.IsVisible = true;
         }
         finally
         {
             SetEditingEnabled(true);
         }
+    }
+    /// <summary>
+    /// Restores only the refresh editor values; the user presses Save to persist them.
+    /// </summary>
+    void OnDefaultRefreshClick(object Sender, RoutedEventArgs Args)
+    {
+        foreach (var Option in PInfo.Settings.RefreshIntervals)
+            fRefreshEditors[Option.PropertyName].Value = Option.DefaultValue;
+        RefreshSaveStatusText.Text = "Default intervals selected. Press Save to apply them.";
     }
     /// <summary>
     /// Saves the common page size used when opening a paged list.
@@ -154,8 +198,9 @@ public partial class SettingsForm : AppForm
         cboTheme.ItemsSource = Enum.GetValues<AppTheme>();
         cboTheme.SelectedItem = ThemeManager.CurrentTheme;
         cboTheme.SelectionChanged += OnThemeSelectionChanged;
-        edtPlacesRefreshMonths.Value = Lib.Settings.PlacesRefreshMonths;
-        btnSavePlacesRefresh.Click += OnSavePlacesRefreshClick;
+        CreateRefreshEditors();
+        btnSaveRefresh.Click += OnSaveRefreshClick;
+        btnDefaultRefresh.Click += OnDefaultRefreshClick;
         edtItemsPerPage.Value = Lib.Settings.ItemsPerPage;
         btnSaveItemsPerPage.Click += OnSaveItemsPerPageClick;
         cboTemperatureUnit.ItemsSource = new[] { "Celsius (°C)", "Fahrenheit (°F)" };

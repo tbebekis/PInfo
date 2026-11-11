@@ -73,7 +73,7 @@ public class UniversityService : PublicService
                     Progress?.Report("Checking saved university data...");
                     Validate(Cached, CancellationToken, Progress);
                     DateTime Written = File.GetLastWriteTimeUtc(FilePath);
-                    if (Written <= DateTime.UtcNow && Written > DateTime.UtcNow.AddDays(-30))
+                    if (Written <= DateTime.UtcNow && Written > DateTime.UtcNow.AddDays(-Lib.Settings.UniversitiesRefreshDays))
                     {
                         Result.ResponseJsonText = Cached;
                         Result.ResultStatus = ApiClientResultStatus.Success;

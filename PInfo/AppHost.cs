@@ -19,6 +19,8 @@ static public class AppHost
         Items.Add(new PublicServiceItem(Lib.Countries, () => new CountryListForm()));
         PhotonService Weather = new();
         Items.Add(new PublicServiceItem(Weather, () => new WeatherSearchForm(Weather)));
+        WorldClockService WorldClock = new();
+        Items.Add(new PublicServiceItem(WorldClock, () => new WorldClockListForm()));
         ExchangeRateService ExchangeRates = new();
         Items.Add(new PublicServiceItem(ExchangeRates, () => new ExchangeRateListForm(ExchangeRates)));
         ExchangeRateService Cryptocurrencies = new(Cryptocurrencies: true);

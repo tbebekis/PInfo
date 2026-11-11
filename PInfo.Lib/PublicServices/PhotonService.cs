@@ -67,7 +67,7 @@ public class PhotonService : PublicService
                     Cached = await File.ReadAllTextAsync(FilePath, CancellationToken).ConfigureAwait(false);
                     Validate(Cached);
                     DateTime Written = File.GetLastWriteTimeUtc(FilePath);
-                    if (Written <= DateTime.UtcNow && Written > DateTime.UtcNow.AddDays(-7))
+                    if (Written <= DateTime.UtcNow && Written > DateTime.UtcNow.AddDays(-Lib.Settings.PhotonRefreshDays))
                     {
                         Result.ResponseJsonText = Cached;
                         Result.ResultStatus = ApiClientResultStatus.Success;

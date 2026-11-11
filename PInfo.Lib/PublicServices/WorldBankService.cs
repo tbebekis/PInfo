@@ -105,7 +105,7 @@ static public class WorldBankService
                 .Select(Point => (Year: Point.Key, Value: Point.Value)).ToList().AsReadOnly(), StringComparer.Ordinal));
     }
     /// <summary>
-    /// Loads the configured annual indicators for one source in one request, with a 30-second deadline and 30-day cache lifetime.
+    /// Loads the configured annual indicators for one source in one request, with a 30-second deadline and configurable cache lifetime.
     /// </summary>
     /// <param name="CountryCode">The selected country's ISO alpha-3 code.</param>
     /// <param name="CancellationToken">Cancels waiting, downloading and saving.</param>
@@ -134,7 +134,7 @@ static public class WorldBankService
                     ReadSeries(Json, Code, out _, SourceId);
                     Cached = Json;
                     DateTime Saved = File.GetLastWriteTimeUtc(FilePath);
-                    if (Saved <= DateTime.UtcNow && DateTime.UtcNow - Saved < TimeSpan.FromDays(30))
+                    if (Saved <= DateTime.UtcNow && DateTime.UtcNow - Saved < TimeSpan.FromDays(Lib.Settings.WorldBankRefreshDays))
                     {
                         Result.ResponseJsonText = Cached;
                         Result.ResultStatus = ApiClientResultStatus.Success;

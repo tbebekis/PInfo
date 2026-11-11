@@ -63,7 +63,8 @@ public class FavoriteCategoriesForm : AppForm
     void OnCategoryClick(object Sender, RoutedEventArgs Args)
     {
         if (Sender is Button Action && Action.Tag is FavoriteKind Kind)
-            MainView.Current?.PushForm(new FavoriteListForm(Kind));
+            MainView.Current?.PushForm(Kind == FavoriteKind.WorldClock
+                ? new WorldClockListForm(Favorites: true) : new FavoriteListForm(Kind));
     }
 
     // ● constructor

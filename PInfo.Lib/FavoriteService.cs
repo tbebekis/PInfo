@@ -60,7 +60,7 @@ static public class FavoriteService
         {
             FavoriteKind.Country => "Countries", FavoriteKind.City => "Cities", FavoriteKind.Place => "Places",
             FavoriteKind.Weather => "Weather", FavoriteKind.ExchangeRates => "Exchange Rates",
-            FavoriteKind.Cryptocurrencies => "Cryptocurrencies", _ => throw new ArgumentException("Unknown favorite category.", nameof(Kind))
+            FavoriteKind.Cryptocurrencies => "Cryptocurrencies", FavoriteKind.WorldClock => "World Clock", _ => throw new ArgumentException("Unknown favorite category.", nameof(Kind))
         };
     }
     /// <summary>
@@ -135,6 +135,14 @@ static public class FavoriteService
             new FavoriteSnapshot { BaseCurrency = new CurrencyDetail { Code = Code, Name = Currency.Name.Trim() } });
     }
     /// <summary>
+    /// Saves only the timezone identifier in the existing target key, never a clock reading.
+    /// </summary>
+    static public FavoriteModel WorldClock(string ZoneId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(ZoneId);
+        return Create(FavoriteKind.WorldClock, ZoneId, WorldClockService.GetTitle(ZoneId), "Time zone", new FavoriteSnapshot());
+    }
+    /// <summary>
     /// Validates a stored snapshot and restores administrative display context excluded from imported models' JSON.
     /// </summary>
     static public FavoriteSnapshot ReadSnapshot(FavoriteModel Favorite)
@@ -156,6 +164,7 @@ static public class FavoriteService
                 && !string.IsNullOrWhiteSpace(Snapshot.BaseCurrency.Name)
                 && Snapshot.BaseCurrency.Code == Favorite.TargetKey
                 && IsAssetCode(Snapshot.BaseCurrency.Code, Favorite.Kind == FavoriteKind.Cryptocurrencies),
+            FavoriteKind.WorldClock => !string.IsNullOrWhiteSpace(Favorite.TargetKey),
             _ => false
         };
         if (!Valid)

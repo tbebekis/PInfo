@@ -13,7 +13,7 @@ public class FavoriteModel
     /// </summary>
     public FavoriteKind Kind { get; set; }
     /// <summary>
-    /// The stable country, GeoNames, weather-location or asset-code identifier within this category.
+    /// The stable country, GeoNames, weather-location, asset-code or timezone identifier within this category.
     /// </summary>
     public string TargetKey { get; set; } = string.Empty;
     /// <summary>

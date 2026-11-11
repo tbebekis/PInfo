@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite" />
     <EmbeddedResource Include="Schema.sql" LogicalName="PInfo.Schema.sql" />
+    <EmbeddedResource Include="Data/world-clock-titles.json" LogicalName="PInfo.world-clock-titles.json" />
   </ItemGroup>
 
 </Project>

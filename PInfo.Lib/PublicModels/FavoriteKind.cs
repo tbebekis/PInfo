@@ -30,5 +30,9 @@ public enum FavoriteKind
     /// <summary>
     /// Fiat reference prices for a saved cryptocurrency.
     /// </summary>
-    Cryptocurrencies = 5
+    Cryptocurrencies = 5,
+    /// <summary>
+    /// A live clock identified by its system timezone identifier.
+    /// </summary>
+    WorldClock = 6
 }

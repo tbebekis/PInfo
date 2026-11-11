@@ -9,8 +9,6 @@ public class CountryService : PublicService
 {
     // ● private
     const string CountriesUrl = "https://countries.dev/countries?full=true";
-    const int CacheLifetimeDays = 30;
-    const int CityCacheLifetimeMonths = 3;
     readonly ConcurrentDictionary<string, SemaphoreSlim> fCityLoadLocks = new(StringComparer.OrdinalIgnoreCase);
     readonly ConcurrentDictionary<string, (IReadOnlyList<CityModel> Items, DateTime SavedUtc)> fCities = new(StringComparer.OrdinalIgnoreCase);
     readonly SemaphoreSlim fLoadLock = new(1, 1);
@@ -209,7 +207,7 @@ public class CountryService : PublicService
     // ● public
     /// <summary>
     /// Loads countries from memory, SQLite, or the API, in that order. Serializes concurrent loads.
-    /// Refreshes data older than 30 days. Failed refreshes return Success with cached countries and a warning.
+    /// Refreshes after the configured country interval. Failed refreshes return Success with cached countries and a warning.
     /// Cancellation returns Cancelled, including while waiting for another load.
     /// A successful download remains available in memory if persistence fails; ReasonPhrase contains a warning.
     /// </summary>
@@ -237,7 +235,7 @@ public class CountryService : PublicService
 
             DateTime Now = DateTime.UtcNow;
             if (fCountries.Count > 0 && fCountriesLoadedUtc <= Now
-                && Now - fCountriesLoadedUtc <= TimeSpan.FromDays(CacheLifetimeDays))
+                && Now - fCountriesLoadedUtc <= TimeSpan.FromDays(Lib.Settings.CountriesRefreshDays))
             {
                 Result.ResultStatus = ApiClientResultStatus.Success;
                 return Result;
@@ -293,7 +291,7 @@ public class CountryService : PublicService
 
     /// <summary>
     /// Loads up to 100 cities for a country from memory, disk, or countries.dev.
-    /// Refreshes on demand after three calendar months, retaining cached data when refresh fails.
+    /// Refreshes on demand after the configured Big Cities interval, retaining cached data when refresh fails.
     /// Cancellation returns Cancelled. Storage failures leave downloaded data available in memory with a warning.
     /// </summary>
     /// <param name="CountryCode">The country's ISO alpha-2 code.</param>
@@ -321,7 +319,7 @@ public class CountryService : PublicService
                     fCities[Code] = Cached;
             }
             DateTime Now = DateTime.UtcNow;
-            if (Cached.Items != null && Cached.SavedUtc <= Now && Cached.SavedUtc.AddMonths(CityCacheLifetimeMonths) > Now)
+            if (Cached.Items != null && Cached.SavedUtc <= Now && Cached.SavedUtc.AddMonths(Lib.Settings.BigCitiesRefreshMonths) > Now)
             {
                 Result.ResultStatus = ApiClientResultStatus.Success;
                 return Result;

@@ -205,18 +205,18 @@ public class ExchangeRateService : PublicService
 
     // ● public
     /// <summary>
-    /// Reads the selected currency or cryptocurrency catalogue, reusing cached data for seven days.
+    /// Reads the selected currency or cryptocurrency catalogue, reusing cached data for the configured interval.
     /// </summary>
     /// <param name="CancellationToken">Cancels this load.</param>
     /// <returns>The outcome and available currencies.</returns>
     public Task<(ApiClientResult Result, IReadOnlyList<CurrencyDetail> Items)> LoadCurrenciesAsync(CancellationToken CancellationToken = default)
     {
         return LoadAsync(IsCryptocurrencyService ? "cryptocurrencies" : "currencies",
-            "https://api.frankfurter.dev/v2/currencies", TimeSpan.FromDays(7),
+            "https://api.frankfurter.dev/v2/currencies", TimeSpan.FromDays(Lib.Settings.AssetCatalogueRefreshDays),
             Json => ReadAssets(Json, IsCryptocurrencyService ? "crypto" : "currency"), CancellationToken);
     }
     /// <summary>
-    /// Reads available rates for one base currency, reusing cached data for three hours.
+    /// Reads available rates for one base currency, reusing cached data for the configured interval.
     /// </summary>
     /// <param name="BaseCode">The selected base currency code.</param>
     /// <param name="Currencies">The available base-asset catalogue; crypto prices load their own fiat quote catalogue.</param>
@@ -234,14 +234,14 @@ public class ExchangeRateService : PublicService
             if (!Currencies.Any(Item => Item.Code == Code))
                 throw new ArgumentException("The selected cryptocurrency is not in the available catalogue.", nameof(BaseCode));
             var Catalogue = await LoadAsync("crypto-quote-currencies", "https://api.frankfurter.dev/v2/currencies",
-                TimeSpan.FromDays(7), Json => ReadAssets(Json, "currency"), CancellationToken).ConfigureAwait(false);
+                TimeSpan.FromDays(Lib.Settings.AssetCatalogueRefreshDays), Json => ReadAssets(Json, "currency"), CancellationToken).ConfigureAwait(false);
             if (Catalogue.Result.ResultStatus != ApiClientResultStatus.Success)
                 return (Catalogue.Result, Array.Empty<(CurrencyDetail Currency, decimal Rate, DateTime Date)>());
             Quotes = Catalogue.Items;
             Warning = Catalogue.Result.ReasonPhrase;
         }
         var Rates = await LoadAsync((IsCryptocurrencyService ? "crypto-rates-" : "rates-") + Code,
-            "https://api.frankfurter.dev/v2/rates?base=" + Code, TimeSpan.FromHours(3),
+            "https://api.frankfurter.dev/v2/rates?base=" + Code, TimeSpan.FromHours(Lib.Settings.RatesRefreshHours),
             Json => ReadRates(Json, Code, Quotes), CancellationToken).ConfigureAwait(false);
         if (!string.IsNullOrWhiteSpace(Warning))
             Rates.Result.ReasonPhrase = string.Join("\n", new[] { Rates.Result.ReasonPhrase, Warning }.Where(Value => !string.IsNullOrWhiteSpace(Value)));

@@ -9,7 +9,7 @@ static public class WikipediaService
 {
     // ● private
     /// <summary>
-    /// Sends an identified request, validates API errors, and keeps a seven-day offline response cache.
+    /// Sends an identified request, validates API errors, and keeps a configurable offline response cache.
     /// </summary>
     /// <param name="Parameters">The escaped query parameters after the common API parameters.</param>
     /// <param name="CancellationToken">Cancels network and file operations.</param>
@@ -30,7 +30,7 @@ static public class WikipediaService
                 using JsonDocument Document = JsonDocument.Parse(Cached);
                 if (!Document.RootElement.TryGetProperty("query", out _) || Document.RootElement.TryGetProperty("error", out _))
                     Cached = null;
-                if (Cached != null && File.GetLastWriteTimeUtc(FilePath) > DateTime.UtcNow.AddDays(-7))
+                if (Cached != null && File.GetLastWriteTimeUtc(FilePath) > DateTime.UtcNow.AddDays(-Lib.Settings.WikipediaRefreshDays))
                 {
                     Result.ResponseJsonText = Cached;
                     Result.ResultStatus = ApiClientResultStatus.Success;

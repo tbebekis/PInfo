@@ -221,7 +221,8 @@ static public partial class WeatherService
                     CancellationToken), CancellationToken).ConfigureAwait(false);
             CancellationToken.ThrowIfCancellationRequested();
             DateTime Now = DateTime.UtcNow;
-            if (Cached != null && Cached.CheckedUtc <= Now && Cached.NextRequestUtc > Now)
+            if (Cached != null && Cached.CheckedUtc <= Now && (Cached.NextRequestUtc > Now
+                || Cached.CheckedUtc.AddHours(Lib.Settings.WeatherRefreshHours) > Now))
             {
                 Result.ResultStatus = ApiClientResultStatus.Success;
                 Result.ReasonPhrase = ZoneWarning;

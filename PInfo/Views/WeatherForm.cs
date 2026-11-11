@@ -23,6 +23,12 @@ public class WeatherForm : AppForm
     DateTime fDisplayedAtUtc;
     readonly List<ScrollViewer> fColumnScrollers = new();
     readonly ScrollViewer fScroller;
+    TextBlock fSunriseText;
+    TextBlock fSunsetText;
+    string fSunriseValue = "Loading...";
+    string fSunsetValue = "Loading...";
+    bool fSunReady;
+    CancellationTokenSource fSunCancellation;
 
     /// <summary>
     /// Creates a centered weather-table label with optional font size.
@@ -246,19 +252,34 @@ public class WeatherForm : AppForm
             TextWrapping = TextWrapping.Wrap
         };
         Current.Classes.Add("ListItemTitle");
-        fTables.Children.Add(Current);
-        TextBlock Updated = new()
+        StackPanel Summary = new() { Spacing = 2 };
+        Grid CurrentRow = new() { ColumnDefinitions = new ColumnDefinitions("*,Auto"), ColumnSpacing = 8 };
+        CurrentRow.Children.Add(Current);
+        Button SunMoon = new()
         {
-            Text = "Forecast at " + WeatherService.GetLocalTime(Forecast, Reading.TimeUtc)
-                .ToString("dd MMM HH:mm", CultureInfo.CurrentCulture) + "\nModel updated "
-                + WeatherService.GetLocalTime(Forecast, Forecast.ModelUpdatedUtc).ToString("dd MMM HH:mm", CultureInfo.CurrentCulture)
-                + "\nDownloaded "
-                + WeatherService.GetLocalTime(Forecast, Forecast.UpdatedUtc).ToString("dd MMM HH:mm", CultureInfo.CurrentCulture)
-                + " · " + Forecast.Timezone,
-            TextWrapping = TextWrapping.Wrap
+            Content = "Sun & Moon", FontSize = 12, MinHeight = 28, Padding = new Thickness(8, 2),
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
         };
-        Updated.Classes.Add("SecondaryText");
-        fTables.Children.Add(Updated);
+        SunMoon.Classes.Add("PrimaryButton");
+        SunMoon.Click += (Sender, Args) => MainView.Current?.PushForm(new SunMoonForm(fLocationName, fLatitude, fLongitude,
+            fTimezone, string.Empty));
+        Grid.SetColumn(SunMoon, 1);
+        CurrentRow.Children.Add(SunMoon);
+        Summary.Children.Add(CurrentRow);
+        TextBlock Date = new()
+        {
+            Text = WeatherService.GetLocalTime(Forecast, Reading.TimeUtc).ToString("dd MMM HH:mm", CultureInfo.CurrentCulture)
+                + " · " + Forecast.Timezone, TextWrapping = TextWrapping.Wrap
+        };
+        Date.Classes.Add("SecondaryText");
+        Summary.Children.Add(Date);
+        fSunriseText = new TextBlock { Text = "Sunrise: " + fSunriseValue, TextWrapping = TextWrapping.Wrap };
+        fSunsetText = new TextBlock { Text = "Sunset: " + fSunsetValue, TextWrapping = TextWrapping.Wrap };
+        fSunriseText.Classes.Add("SecondaryText");
+        fSunsetText.Classes.Add("SecondaryText");
+        Summary.Children.Add(fSunriseText);
+        Summary.Children.Add(fSunsetText);
+        fTables.Children.Add(Summary);
         fTables.Children.Add(CreateTable("Next 24 hours", Forecast, Hours));
         if (Days.Count > 0)
             fTables.Children.Add(CreateTable("Daily forecast", Forecast, Days));
@@ -282,6 +303,78 @@ public class WeatherForm : AppForm
         fTables.Children.Add(Licence);
     }
     /// <summary>
+    /// Formats a solar event time with a short marker only when it falls outside the displayed forecast date.
+    /// </summary>
+    string SummarySunTime(JsonElement Properties, string Name, TimeZoneInfo Zone, DateOnly Date)
+    {
+        if (!Properties.TryGetProperty(Name, out JsonElement Event) || Event.ValueKind != JsonValueKind.Object
+            || !Event.TryGetProperty("time", out JsonElement Text) || Text.ValueKind != JsonValueKind.String
+            || !DateTimeOffset.TryParse(Text.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTimeOffset Time))
+            return "No event reported";
+        DateTimeOffset Local = TimeZoneInfo.ConvertTime(Time, Zone);
+        int Difference = DateOnly.FromDateTime(Local.DateTime).DayNumber - Date.DayNumber;
+        string Suffix = Difference == 0 ? string.Empty : Difference == 1 ? " (next day)"
+            : Difference == -1 ? " (previous day)" : $" ({Difference:+0;-0} days)";
+        return Local.ToString("HH:mm", CultureInfo.CurrentCulture) + Suffix;
+    }
+    /// <summary>
+    /// Loads compact sunrise/set data after the forecast is visible without rebuilding the table or losing scroll position.
+    /// </summary>
+    async Task LoadSunSummaryAsync()
+    {
+        if (fSunReady || fSunCancellation != null || fForecast == null || !this.IsAttachedToVisualTree())
+            return;
+        WeatherForecast Forecast = fForecast;
+        WeatherReading Reading = Forecast.Readings.LastOrDefault(Item => Item.TimeUtc <= fDisplayedAtUtc) ?? Forecast.Readings[0];
+        DateOnly Date = DateOnly.FromDateTime(WeatherService.GetLocalTime(Forecast, Reading.TimeUtc).DateTime);
+        WorldClockService.TryGetZone(Forecast.Timezone, out TimeZoneInfo Zone);
+        Zone ??= TimeZoneInfo.Utc;
+        TimeSpan Offset = Zone.GetUtcOffset(Date.ToDateTime(new TimeOnly(12, 0), DateTimeKind.Unspecified));
+        using CancellationTokenSource Cancellation = new();
+        fSunCancellation = Cancellation;
+        try
+        {
+            ApiClientResult Result = await WeatherService.LoadSunMoonAsync("Sun", fLatitude, fLongitude, Date, Offset, Cancellation.Token);
+            if (Cancellation.IsCancellationRequested || fSunCancellation != Cancellation || Forecast != fForecast || !this.IsAttachedToVisualTree())
+                return;
+            if (Result.ResultStatus == ApiClientResultStatus.Success)
+            {
+                using JsonDocument Document = JsonDocument.Parse(Result.ResponseJsonText);
+                JsonElement Properties = Document.RootElement.GetProperty("properties");
+                string Saved = string.IsNullOrWhiteSpace(Result.ReasonPhrase) ? string.Empty : " (saved data; see Sun & Moon)";
+                fSunriseValue = SummarySunTime(Properties, "sunrise", Zone, Date) + Saved;
+                fSunsetValue = SummarySunTime(Properties, "sunset", Zone, Date) + Saved;
+                fSunReady = true;
+            }
+            else
+            {
+                fSunriseValue = "Unavailable — see Sun & Moon";
+                fSunsetValue = "Unavailable — see Sun & Moon";
+            }
+            fSunriseText.Text = "Sunrise: " + fSunriseValue;
+            fSunsetText.Text = "Sunset: " + fSunsetValue;
+        }
+        catch (OperationCanceledException) when (Cancellation.IsCancellationRequested)
+        {
+            // Returning to this forecast can retry an interrupted summary load.
+        }
+        catch (Exception Ex)
+        {
+            if (!Cancellation.IsCancellationRequested && fSunCancellation == Cancellation && this.IsAttachedToVisualTree())
+            {
+                ExceptionLog.WriteException("WeatherForm.SunSummary", Ex, false);
+                fSunriseValue = fSunsetValue = "Unavailable — see Sun & Moon";
+                fSunriseText.Text = "Sunrise: " + fSunriseValue;
+                fSunsetText.Text = "Sunset: " + fSunsetValue;
+            }
+        }
+        finally
+        {
+            if (fSunCancellation == Cancellation)
+                fSunCancellation = null;
+        }
+    }
+    /// <summary>
     /// Loads on entry or retry while safely cancelling work when this form is left.
     /// </summary>
     async Task LoadAsync()
@@ -302,6 +395,9 @@ public class WeatherForm : AppForm
             {
                 fForecast = Loaded.Forecast;
                 fDisplayedAtUtc = DateTime.UtcNow;
+                fSunReady = false;
+                fSunriseValue = "Loading...";
+                fSunsetValue = "Loading...";
                 DisplayForecast(fForecast);
                 fLoaded = true;
                 fStatus.Text = Loaded.Result.ReasonPhrase ?? string.Empty;
@@ -332,6 +428,8 @@ public class WeatherForm : AppForm
                 fStatus.IsVisible = !string.IsNullOrWhiteSpace(fStatus.Text);
             }
         }
+        if (fLoaded && !Cancellation.IsCancellationRequested && this.IsAttachedToVisualTree())
+            await LoadSunSummaryAsync();
     }
     /// <summary>
     /// Rebuilds display temperatures from the current snapshot while retaining vertical and horizontal positions.
@@ -357,8 +455,12 @@ public class WeatherForm : AppForm
     {
         if (!fLoaded)
             await LoadAsync();
-        else if (fDisplayedUnit != Lib.Settings.TemperatureUnit)
-            RefreshTemperatureUnit();
+        else
+        {
+            if (fDisplayedUnit != Lib.Settings.TemperatureUnit)
+                RefreshTemperatureUnit();
+            await LoadSunSummaryAsync();
+        }
     }
     /// <summary>
     /// Cancels an unfinished request on navigation without discarding a completed forecast view.
@@ -366,6 +468,9 @@ public class WeatherForm : AppForm
     void OnWeatherUnloaded(object Sender, RoutedEventArgs Args)
     {
         fCancellation?.Cancel();
+        CancellationTokenSource SunCancellation = fSunCancellation;
+        fSunCancellation = null;
+        SunCancellation?.Cancel();
     }
     /// <summary>
     /// Retries a failed load from the inline notice.
