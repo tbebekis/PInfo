@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.Data.Sqlite" />
     <EmbeddedResource Include="Schema.sql" LogicalName="PInfo.Schema.sql" />
     <EmbeddedResource Include="schema-02.sql" LogicalName="PInfo.schema-02.sql" />
+    <EmbeddedResource Include="schema-03.sql" LogicalName="PInfo.schema-03.sql" />
   </ItemGroup>
 
 </Project>

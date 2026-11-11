@@ -9,6 +9,22 @@ public partial class AppCardForm : AppForm
 {
     // ● protected
     /// <summary>
+    /// Adds a compact action at the upper right of the title, reserving space for wrapping title text.
+    /// </summary>
+    /// <param name="ActionButton">The title action configured by the derived card form.</param>
+    protected void AddTitleAction(Button ActionButton)
+    {
+        ArgumentNullException.ThrowIfNull(ActionButton);
+        if (TitleText.Parent is Grid Heading)
+        {
+            ActionButton.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right;
+            ActionButton.VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top;
+            ActionButton.Margin = new Thickness(8, 0, 0, 0);
+            Grid.SetColumn(ActionButton, 1);
+            Heading.Children.Add(ActionButton);
+        }
+    }
+    /// <summary>
     /// Adds an action button below the header badges, showing the optional action area.
     /// </summary>
     /// <param name="ActionButton">The button configured by the derived card form.</param>

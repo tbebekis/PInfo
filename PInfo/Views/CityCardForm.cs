@@ -24,6 +24,7 @@ public class CityCardForm : AppCardForm
         AddHeaderAction(Wikipedia);
 
         AddBadge(City.CountryCode);
+        AddTitleAction(new FavoriteButton(FavoriteService.City(City)));
         StackPanel Section = CreateSection("City details");
         AddField(Section, "Population", City.Population.ToString("N0", CultureInfo.CurrentCulture));
         AddField(Section, "Country code", City.CountryCode);
@@ -36,7 +37,8 @@ public class CityCardForm : AppCardForm
             && City.Latitude >= -90 && City.Latitude <= 90 && City.Longitude >= -180 && City.Longitude <= 180)
         {
             Button Weather = new() { Content = "Weather" };
-            Weather.Click += (Sender, Args) => MainView.Current?.PushForm(new WeatherForm(DisplayName, City.Latitude, City.Longitude, City.Timezone, City.AdministrativeArea));
+            Weather.Click += (Sender, Args) => MainView.Current?.PushForm(new WeatherForm(DisplayName, City.Latitude, City.Longitude, City.Timezone, City.AdministrativeArea,
+                "geonames:" + City.GeonameId.ToString(CultureInfo.InvariantCulture)));
             AddHeaderAction(Weather);
             Section = CreateSection("Location");
             AddField(Section, "Latitude", City.Latitude.ToString("0.#####", CultureInfo.CurrentCulture) + "°");

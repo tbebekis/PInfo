@@ -23,10 +23,17 @@ public class CountryCardForm : AppCardForm
     void DisplayCountry(CountryModel Country)
     {
         SetHeader(Country.Name, Country.NativeName, Country.Flag);
+        TextBlock Flag = this.FindControl<TextBlock>("HeaderIconText");
+        if (Flag?.Parent is StackPanel Header)
+        {
+            Header.Children.Remove(Flag);
+            Header.Children.Insert(1, Flag);
+        }
         SetSource("Country data from countries.dev");
         AddBadge(Country.Alpha2Code);
         AddBadge(Country.Alpha3Code);
         AddBadge(Country.Region);
+        AddTitleAction(new FavoriteButton(FavoriteService.Country(Country)));
 
         Button btnCities = new() { Name = "btnCities", Content = "Big Cities", Tag = Country };
         btnCities.Click += AnyClick;

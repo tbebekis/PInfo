@@ -1,7 +1,7 @@
 -- PInfo, Copyright (c) 2026 Theo Bebekis, see License.
--- Country and GeoNames place schema (version 2).
+-- Country, GeoNames place and favorites schema (version 3).
 -- The database initializer must enable foreign_keys on every connection before starting a transaction.
--- Execute this script and set PRAGMA user_version = 2 in the same initialization transaction.
+-- Execute this script and set PRAGMA user_version = 3 in the same initialization transaction.
 -- Refresh countries with UPSERT, not INSERT OR REPLACE, to preserve related records.
 
 -- Country identifiers connect countries.dev records with future GeoNames alpha-2 records.
@@ -197,4 +197,16 @@ CREATE TABLE DataRefresh
     Scope TEXT NOT NULL DEFAULT '',
     UpdatedUtc TEXT NOT NULL CHECK (length(trim(UpdatedUtc)) > 0),
     PRIMARY KEY (Dataset, Scope)
+);
+
+-- Favorites deliberately have no foreign keys to imported datasets: refreshes must not remove saved references.
+CREATE TABLE Favorite
+(
+    Kind INTEGER NOT NULL CHECK (Kind BETWEEN 0 AND 3),
+    TargetKey TEXT NOT NULL CHECK (length(trim(TargetKey)) > 0),
+    Name TEXT NOT NULL CHECK (length(trim(Name)) > 0),
+    Context TEXT NOT NULL DEFAULT '',
+    DataJson TEXT NOT NULL CHECK (length(trim(DataJson)) > 0),
+    AddedUtc TEXT NOT NULL,
+    PRIMARY KEY (Kind, TargetKey)
 );

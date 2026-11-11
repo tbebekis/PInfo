@@ -9,7 +9,7 @@ namespace PInfo;
 static public partial class Db
 {
     // ● private
-    const int SchemaVersion = 2;
+    const int SchemaVersion = 3;
     static readonly SemaphoreSlim fInitializeLock = new(1, 1);
     static bool fInitialized;
 
@@ -115,6 +115,11 @@ static public partial class Db
         {
             ExecuteSchema(Connection, Transaction, "PInfo.schema-02.sql", CancellationToken);
             Version = 2;
+        }
+        if (Version == 2)
+        {
+            ExecuteSchema(Connection, Transaction, "PInfo.schema-03.sql", CancellationToken);
+            Version = 3;
         }
         // Future schema upgrades belong here as explicit, ordered migration steps.
         if (Version != ReadVersion(Connection, Transaction))

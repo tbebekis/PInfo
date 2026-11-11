@@ -384,7 +384,8 @@ public class WeatherForm : AppForm
     /// <param name="Longitude">The requested longitude.</param>
     /// <param name="Timezone">The selected location timezone from GeoNames.</param>
     /// <param name="AdministrativeArea">The resolved administrative context shown below the title.</param>
-    public WeatherForm(string LocationName, double Latitude, double Longitude, string Timezone, string AdministrativeArea = "")
+    /// <param name="LocationKey">The stable GeoNames weather-location identity, or empty to use coordinates.</param>
+    public WeatherForm(string LocationName, double Latitude, double Longitude, string Timezone, string AdministrativeArea = "", string LocationKey = "")
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(LocationName);
         fLocationName = LocationName;
@@ -397,7 +398,13 @@ public class WeatherForm : AppForm
         TextBlock Title = new() { Text = LocationName + " - Weather", Margin = new Thickness(4, 0, 4, 10), TextWrapping = TextWrapping.Wrap };
         Title.Classes.Add("FormTitle");
         StackPanel Header = new() { Spacing = 2, Margin = new Thickness(0, 0, 0, 8) };
-        Header.Children.Add(Title);
+        Grid Heading = new() { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
+        Heading.Children.Add(Title);
+        FavoriteButton Favorite = new(FavoriteService.Weather(LocationName, Latitude, Longitude, Timezone, AdministrativeArea, LocationKey));
+        Favorite.VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top;
+        Grid.SetColumn(Favorite, 1);
+        Heading.Children.Add(Favorite);
+        Header.Children.Add(Heading);
         if (!string.IsNullOrWhiteSpace(AdministrativeArea))
         {
             TextBlock Area = new() { Text = AdministrativeArea, FontSize = 12, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(4, 0) };

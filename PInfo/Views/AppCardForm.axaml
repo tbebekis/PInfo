@@ -8,7 +8,9 @@
             <Border Classes="CardHeader">
                 <StackPanel Spacing="10">
                     <TextBlock x:Name="HeaderIconText" Classes="FlagEmoji CardIcon"/>
-                    <TextBlock x:Name="TitleText" Classes="CardTitle"/>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock x:Name="TitleText" Classes="CardTitle"/>
+                    </Grid>
                     <TextBlock x:Name="SubtitleText" Classes="CardSubtitle"/>
                     <WrapPanel x:Name="BadgePanel"/>
                     <WrapPanel x:Name="HeaderActionsPanel" IsVisible="False"/>
