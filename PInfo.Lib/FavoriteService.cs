@@ -37,6 +37,18 @@ static public class FavoriteService
         if (!double.IsFinite(Latitude) || !double.IsFinite(Longitude) || Latitude < -90 || Latitude > 90 || Longitude < -180 || Longitude > 180)
             throw new ArgumentException("A valid geographic location is required.");
     }
+    /// <summary>
+    /// Checks the saved asset code against the corresponding provider identifier rules.
+    /// </summary>
+    static bool IsAssetCode(string Code, bool Cryptocurrencies)
+    {
+        if (string.IsNullOrWhiteSpace(Code))
+            return false;
+        return Cryptocurrencies
+            ? Code.Length >= 2 && Code.Length <= 12
+                && Code.All(Character => Character >= 'A' && Character <= 'Z' || Character >= '0' && Character <= '9')
+            : Code.Length == 3 && Code.All(Character => Character >= 'A' && Character <= 'Z');
+    }
 
     // ● public
     /// <summary>
@@ -47,7 +59,8 @@ static public class FavoriteService
         return Kind switch
         {
             FavoriteKind.Country => "Countries", FavoriteKind.City => "Cities", FavoriteKind.Place => "Places",
-            FavoriteKind.Weather => "Weather", _ => throw new ArgumentException("Unknown favorite category.", nameof(Kind))
+            FavoriteKind.Weather => "Weather", FavoriteKind.ExchangeRates => "Exchange Rates",
+            FavoriteKind.Cryptocurrencies => "Cryptocurrencies", _ => throw new ArgumentException("Unknown favorite category.", nameof(Kind))
         };
     }
     /// <summary>
@@ -106,6 +119,22 @@ static public class FavoriteService
         });
     }
     /// <summary>
+    /// Saves an asset choice in its own category without storing any rate or price measurements.
+    /// </summary>
+    /// <param name="Currency">The selected base currency or cryptocurrency.</param>
+    /// <param name="Cryptocurrencies">True for cryptocurrency reference prices.</param>
+    static public FavoriteModel ExchangeRates(CurrencyDetail Currency, bool Cryptocurrencies)
+    {
+        ArgumentNullException.ThrowIfNull(Currency);
+        string Code = (Currency.Code ?? string.Empty).Trim().ToUpperInvariant();
+        if (!IsAssetCode(Code, Cryptocurrencies))
+            throw new ArgumentException("A valid base asset code is required.", nameof(Currency));
+        ArgumentException.ThrowIfNullOrWhiteSpace(Currency.Name);
+        return Create(Cryptocurrencies ? FavoriteKind.Cryptocurrencies : FavoriteKind.ExchangeRates,
+            Code, Code + " — " + Currency.Name.Trim(), Cryptocurrencies ? "Cryptocurrency reference prices" : "Currency reference rates",
+            new FavoriteSnapshot { BaseCurrency = new CurrencyDetail { Code = Code, Name = Currency.Name.Trim() } });
+    }
+    /// <summary>
     /// Validates a stored snapshot and restores administrative display context excluded from imported models' JSON.
     /// </summary>
     static public FavoriteSnapshot ReadSnapshot(FavoriteModel Favorite)
@@ -123,6 +152,10 @@ static public class FavoriteService
             FavoriteKind.Place => Snapshot.Place != null
                 && Snapshot.Place.GeoNameId.ToString(CultureInfo.InvariantCulture) == Favorite.TargetKey,
             FavoriteKind.Weather => Snapshot.Weather != null && !string.IsNullOrWhiteSpace(Snapshot.Weather.Name),
+            FavoriteKind.ExchangeRates or FavoriteKind.Cryptocurrencies => Snapshot.BaseCurrency != null
+                && !string.IsNullOrWhiteSpace(Snapshot.BaseCurrency.Name)
+                && Snapshot.BaseCurrency.Code == Favorite.TargetKey
+                && IsAssetCode(Snapshot.BaseCurrency.Code, Favorite.Kind == FavoriteKind.Cryptocurrencies),
             _ => false
         };
         if (!Valid)

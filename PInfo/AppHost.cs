@@ -21,6 +21,10 @@ static public class AppHost
         Items.Add(new PublicServiceItem(ExchangeRates, () => new ExchangeRateListForm(ExchangeRates)));
         ExchangeRateService Cryptocurrencies = new(Cryptocurrencies: true);
         Items.Add(new PublicServiceItem(Cryptocurrencies, () => new ExchangeRateListForm(Cryptocurrencies)));
+        BookService Books = new();
+        Items.Add(new PublicServiceItem(Books, () => new BookListForm(Books)));
+        UniversityService Universities = new();
+        Items.Add(new PublicServiceItem(Universities, () => new UniversityListForm(Universities)));
 
         HashSet<string> Names = new(StringComparer.OrdinalIgnoreCase);
         foreach (PublicServiceItem Item in Items)

@@ -87,6 +87,29 @@
                 </Border>
                 <Border Classes="ListItem">
                     <StackPanel Spacing="12">
+                        <TextBlock Text="Books" Classes="ListItemTitle"/>
+                        <TextBlock Text="Book searches, work descriptions and catalogue information come from Open Library, an Internet Archive initiative. Results describe works; individual editions may have different languages, publishers and ISBNs. Searches are cached for one day and work details for seven days, with saved-data fallback if a refresh fails."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <TextBlock Text="Internet Archive asserts no new copyright over the database; existing rights may apply to contributions. See the source licensing statement and API usage guidelines."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <HyperlinkButton Content="Open Library" NavigateUri="https://openlibrary.org/"/>
+                        <HyperlinkButton Content="Licensing statement" NavigateUri="https://openlibrary.org/developers/licensing"/>
+                        <HyperlinkButton Content="API usage guidelines" NavigateUri="https://openlibrary.org/developers/api"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Universities" Classes="ListItemTitle"/>
+                        <TextBlock Text="University names, countries, regions, domains and website links come from Hipo's University Domains and Names Data List, under the MIT licence. Copyright (c) 2014-2025 Hipo. The community-maintained catalogue may be incomplete or outdated."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <TextBlock Text="PInfo downloads the official catalogue from GitHub over HTTPS and searches it locally. Downloads are reused for 30 days, with saved-data fallback if a refresh fails. University website links open in your browser."
+                                   Classes="BodyText" TextWrapping="Wrap"/>
+                        <HyperlinkButton Content="Hipo university catalogue" NavigateUri="https://github.com/Hipo/university-domains-list"/>
+                        <HyperlinkButton Content="Licence: MIT" NavigateUri="https://github.com/Hipo/university-domains-list/blob/master/LICENSE.txt"/>
+                    </StackPanel>
+                </Border>
+                <Border Classes="ListItem">
+                    <StackPanel Spacing="12">
                         <TextBlock Text="Created by Theo Bebekis" Classes="ListItemTitle"/>
                         <TextBlock Text="Copyright (c) 2026 Theo Bebekis. See License."
                                    Classes="SecondaryText" TextWrapping="Wrap"/>

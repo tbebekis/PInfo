@@ -9,7 +9,7 @@ namespace PInfo;
 static public partial class Db
 {
     // ● private
-    const int SchemaVersion = 3;
+    const int SchemaVersion = 1;
     static readonly SemaphoreSlim fInitializeLock = new(1, 1);
     static bool fInitialized;
 
@@ -76,7 +76,7 @@ static public partial class Db
         Command.ExecuteNonQuery();
     }
     /// <summary>
-    /// Applies the initial schema or ordered upgrades atomically. Runs entirely on a worker thread.
+    /// Creates the initial schema atomically. Runs entirely on a worker thread.
     /// </summary>
     static void InitializeCore(CancellationToken CancellationToken)
     {
@@ -110,16 +110,6 @@ static public partial class Db
 
             ExecuteSchema(Connection, Transaction, "PInfo.Schema.sql", CancellationToken);
             Version = SchemaVersion;
-        }
-        else if (Version == 1)
-        {
-            ExecuteSchema(Connection, Transaction, "PInfo.schema-02.sql", CancellationToken);
-            Version = 2;
-        }
-        if (Version == 2)
-        {
-            ExecuteSchema(Connection, Transaction, "PInfo.schema-03.sql", CancellationToken);
-            Version = 3;
         }
         // Future schema upgrades belong here as explicit, ordered migration steps.
         if (Version != ReadVersion(Connection, Transaction))

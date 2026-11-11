@@ -32,7 +32,7 @@ static public partial class Db
     /// <summary>
     /// Reads category counts, including zero counts. Call on a worker thread.
     /// </summary>
-    /// <returns>The four persisted category counts.</returns>
+    /// <returns>The persisted category counts, including empty categories.</returns>
     static public Dictionary<FavoriteKind, int> GetFavoriteCounts()
     {
         Dictionary<FavoriteKind, int> Counts = Enum.GetValues<FavoriteKind>().ToDictionary(Kind => Kind, Kind => 0);

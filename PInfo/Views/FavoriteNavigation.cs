@@ -3,7 +3,7 @@
 namespace PInfo.Views;
 
 /// <summary>
-/// Opens the typed saved destination without requiring a country/place import or a network connection.
+/// Opens the typed saved destination without requiring a country/place import; live services retain their own cache and refresh rules.
 /// </summary>
 static class FavoriteNavigation
 {
@@ -34,6 +34,11 @@ static class FavoriteNavigation
                 FavoriteWeatherLocation Location = Snapshot.Weather;
                 Form = new WeatherForm(Location.Name, Location.Latitude, Location.Longitude, Location.Timezone,
                     Location.AdministrativeArea, Favorite.TargetKey);
+                break;
+            case FavoriteKind.ExchangeRates:
+            case FavoriteKind.Cryptocurrencies:
+                ExchangeRateService Service = new(Cryptocurrencies: Favorite.Kind == FavoriteKind.Cryptocurrencies);
+                Form = new ExchangeRateListForm(Service, Snapshot.BaseCurrency, Array.Empty<CurrencyDetail>());
                 break;
             default:
                 throw new InvalidOperationException("Unsupported favorite destination.");

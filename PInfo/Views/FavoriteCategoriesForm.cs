@@ -31,7 +31,7 @@ public class FavoriteCategoriesForm : AppForm
                 if (Item.Value.Content is TextBlock Name)
                     Name.Text = FavoriteService.CategoryName(Item.Key) + $" ({Counts[Item.Key]:N0})";
             }
-            fStatus.Text = "Use the heart in a detail or Weather view to save an item.";
+            fStatus.Text = "Use the heart in a detail, Weather or reference-rate view to save an item.";
         }
         catch (Exception Ex)
         {
@@ -68,7 +68,7 @@ public class FavoriteCategoriesForm : AppForm
 
     // ● constructor
     /// <summary>
-    /// Creates the four category actions without synchronously accessing SQLite.
+    /// Creates the category actions without synchronously accessing SQLite.
     /// </summary>
     public FavoriteCategoriesForm()
     {

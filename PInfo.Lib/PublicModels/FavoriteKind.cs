@@ -22,5 +22,13 @@ public enum FavoriteKind
     /// <summary>
     /// Weather for a saved location, rather than a frozen forecast.
     /// </summary>
-    Weather = 3
+    Weather = 3,
+    /// <summary>
+    /// Reference rates for a saved fiat base currency.
+    /// </summary>
+    ExchangeRates = 4,
+    /// <summary>
+    /// Fiat reference prices for a saved cryptocurrency.
+    /// </summary>
+    Cryptocurrencies = 5
 }

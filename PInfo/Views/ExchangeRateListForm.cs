@@ -258,7 +258,26 @@ public class ExchangeRateListForm : AppListForm
         }
         else
         {
+            string CatalogueWarning = string.Empty;
+            if (fCurrencies.Count == 0)
+            {
+                var Catalogue = await fService.LoadCurrenciesAsync(CancellationToken);
+                CancellationToken.ThrowIfCancellationRequested();
+                if (Catalogue.Result.ResultStatus != ApiClientResultStatus.Success)
+                    return Catalogue.Result;
+                if (!Catalogue.Items.Any(Item => Item.Code == fBaseCurrency.Code))
+                    return new ApiClientResult(Catalogue.Result.ActionUrl)
+                    {
+                        ResultStatus = ApiClientResultStatus.Error,
+                        ReasonPhrase = "This saved asset is no longer in the available catalogue. You can remove it with its heart."
+                    };
+                fCurrencies = Catalogue.Items;
+                CatalogueWarning = Catalogue.Result.ReasonPhrase;
+            }
             var Result = await fService.LoadRatesAsync(fBaseCurrency.Code, fCurrencies, CancellationToken);
+            if (!string.IsNullOrWhiteSpace(CatalogueWarning))
+                Result.Result.ReasonPhrase = string.Join("\n", new[] { CatalogueWarning, Result.Result.ReasonPhrase }
+                    .Where(Value => !string.IsNullOrWhiteSpace(Value)));
             if (!CancellationToken.IsCancellationRequested && Result.Result.ResultStatus == ApiClientResultStatus.Success)
             {
                 fRates = Result.Items;
@@ -321,6 +340,24 @@ public class ExchangeRateListForm : AppListForm
         else
             ItemList.ItemTemplate = new FuncDataTemplate<(CurrencyDetail Currency, decimal Rate, DateTime Date)>(
                 (Item, Scope) => CreateRateItem(Item.Currency, Item.Rate, Item.Date));
+        if (BaseCurrency != null && this.FindControl<TextBlock>("TitleText") is TextBlock Title
+            && Title.Parent is StackPanel Header)
+        {
+            int Index = Header.Children.IndexOf(Title);
+            Header.Children.RemoveAt(Index);
+            Grid Heading = new() { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
+            Heading.Children.Add(Title);
+            Title.TextWrapping = TextWrapping.Wrap;
+            FavoriteButton Heart = new(FavoriteService.ExchangeRates(BaseCurrency, Service.IsCryptocurrencyService))
+            {
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top,
+                Margin = new Thickness(8, 0, 0, 0)
+            };
+            Grid.SetColumn(Heart, 1);
+            Heading.Children.Add(Heart);
+            Header.Children.Insert(Index, Heading);
+        }
         Grid Paging = new() { ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto") };
         fPrevious.Classes.Add("PrimaryButton");
         fPrevious.Classes.Add("PageNavigation");

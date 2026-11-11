@@ -13,7 +13,7 @@ public class FavoriteModel
     /// </summary>
     public FavoriteKind Kind { get; set; }
     /// <summary>
-    /// The stable country, GeoNames or weather-location identifier within this category.
+    /// The stable country, GeoNames, weather-location or asset-code identifier within this category.
     /// </summary>
     public string TargetKey { get; set; } = string.Empty;
     /// <summary>
@@ -67,6 +67,10 @@ public class FavoriteSnapshot
     /// The saved weather location; no forecast measurements are stored here.
     /// </summary>
     public FavoriteWeatherLocation Weather { get; set; }
+    /// <summary>
+    /// The selected base asset identity and display name; reference prices are never saved here.
+    /// </summary>
+    public CurrencyDetail BaseCurrency { get; set; }
 }
 /// <summary>
 /// A location whose forecast is obtained through the normal weather cache and refresh rules.
